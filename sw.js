@@ -1,4 +1,4 @@
-const CACHE = "share-n-save-v2";
+const CACHE = "share-n-save-v3";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", event => {

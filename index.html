@@ -1680,12 +1680,86 @@
     const LOCAL_CHANGED_AT_KEY = "topicwiseResearchReadingList.localChangedAt.v1";
     const SYNC_SETTINGS_KEY = "shareNSave.syncSettings.v1";
     const SYNC_CLIENT_ID_KEY = "shareNSave.syncClientId.v1";
+    const DEFAULT_VIEW_KEY = "shareNSave.defaultViewVersion.v1";
+    const DEFAULT_VIEW_VERSION = "2026-05-19-visible-research-set";
     const SYNC_INTERVAL_MS = 30000;
     const EPOCH = "1970-01-01T00:00:00.000Z";
     const CATEGORY_COLORS = [
       "#0ea5e9", "#14b8a6", "#22c55e", "#84cc16", "#eab308", "#f97316",
       "#ef4444", "#ec4899", "#a855f7", "#6366f1", "#06b6d4", "#64748b"
     ];
+    const DEFAULT_VIEW = {
+      hiddenItems: ["base-1t12ogj", "base-giuv82", "base-11ukefn"],
+      hiddenTopics: [
+        "User/project notes and local documents",
+        "Jobs, internships, opportunities",
+        "Diffusion / flow models for language and discrete data",
+        "Visual generation, tokenizers, image/video diffusion",
+        "Transformers, attention, LLM architectures, SSMs, loop models",
+        "Courses, notes, books, educational resources",
+        "AI agents, autoresearch, tooling, kernels, systems"
+      ],
+      hiddenKinds: {},
+      categoryMeta: {
+        "Flow matching, diffusion, flow maps, and generative-model theory": {
+          name: "Flow matching, diffusion, flow maps, and generative-model theory",
+          color: "#84cc16",
+          updatedAt: EPOCH
+        },
+        "Diffusion / flow models for language and discrete data": {
+          name: "Diffusion / flow models for language and discrete data",
+          color: "#84cc16",
+          updatedAt: EPOCH
+        },
+        "Visual generation, tokenizers, image/video diffusion": {
+          name: "Visual generation, tokenizers, image/video diffusion",
+          color: "#14b8a6",
+          updatedAt: EPOCH
+        },
+        "BioML, protein, RNA, molecular design, and chemistry": {
+          name: "BioML, protein, RNA, molecular design, and chemistry",
+          color: "#eab308",
+          updatedAt: EPOCH
+        },
+        "Geometry, manifolds, equivariance, topology": {
+          name: "Geometry, manifolds, equivariance, topology",
+          color: "#84cc16",
+          updatedAt: EPOCH
+        },
+        "Representation learning, JEPA, neural geometry, embeddings": {
+          name: "Representation learning, JEPA, neural geometry, embeddings",
+          color: "#64748b",
+          updatedAt: EPOCH
+        },
+        "Transformers, attention, LLM architectures, SSMs, loop models": {
+          name: "Transformers, attention, LLM architectures, SSMs, loop models",
+          color: "#22c55e",
+          updatedAt: EPOCH
+        },
+        "AI agents, autoresearch, tooling, kernels, systems": {
+          name: "AI agents, autoresearch, tooling, kernels, systems",
+          color: "#eab308",
+          updatedAt: EPOCH
+        },
+        "Courses, notes, books, educational resources": {
+          name: "Courses, notes, books, educational resources",
+          color: "#0ea5e9",
+          updatedAt: EPOCH
+        },
+        "Jobs, internships, opportunities": {
+          name: "Jobs, internships, opportunities",
+          color: "#ec4899",
+          updatedAt: EPOCH
+        },
+        "User/project notes and local documents": {
+          name: "User/project notes and local documents",
+          color: "#06b6d4",
+          updatedAt: EPOCH
+        }
+      }
+    };
+
+    applyDefaultViewIfNeeded();
 
     const state = {
       filter: "all",
@@ -1792,6 +1866,17 @@
         console.warn("Could not load custom items", err);
         return [];
       }
+    }
+
+    function applyDefaultViewIfNeeded() {
+      if (localStorage.getItem(DEFAULT_VIEW_KEY) === DEFAULT_VIEW_VERSION) return;
+
+      localStorage.setItem(HIDDEN_ITEMS_KEY, JSON.stringify(DEFAULT_VIEW.hiddenItems));
+      localStorage.setItem(HIDDEN_TOPICS_KEY, JSON.stringify(DEFAULT_VIEW.hiddenTopics));
+      localStorage.setItem(HIDDEN_KINDS_KEY, JSON.stringify(DEFAULT_VIEW.hiddenKinds));
+      localStorage.setItem(CATEGORY_META_KEY, JSON.stringify(DEFAULT_VIEW.categoryMeta));
+      localStorage.setItem(LOCAL_CHANGED_AT_KEY, new Date().toISOString());
+      localStorage.setItem(DEFAULT_VIEW_KEY, DEFAULT_VIEW_VERSION);
     }
 
     function loadJsonArray(key) {
@@ -2116,7 +2201,7 @@
           const titleHtml = isRealLink
             ? `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>`
             : `<strong>${escapeHtml(item.title)}</strong>`;
-          const deleteBtn = `<button class="delete-btn" data-delete-id="${escapeHtml(item.id)}" data-delete-custom="${item.custom}" data-delete-title="${escapeHtml(item.title)}" data-delete-topic="${escapeHtml(topic.title)}" data-delete-kind="${escapeHtml(item.kind)}">Delete</button>`;
+          const deleteBtn = `<button type="button" class="delete-btn" data-delete-id="${escapeHtml(item.id)}" data-delete-custom="${item.custom}" data-delete-title="${escapeHtml(item.title)}">Delete</button>`;
           const customMark = item.custom ? `<span class="custom-mark">Added</span>` : "";
           return `<article class="item">
             <div><span class="badge ${badgeClass}">${escapeHtml(item.kind)}</span></div>
@@ -2155,8 +2240,8 @@
             <span class="topic-meta">
               <span class="topic-count">${visibleItems.length} / ${availableItems.length} items</span>
               ${kindSelect}
-              <button class="rename-topic" data-edit-topic="${escapeHtml(topic.title)}">Rename</button>
-              <button class="topic-action" data-delete-topic="${escapeHtml(topic.title)}">Delete category</button>
+              <button type="button" class="rename-topic" data-edit-topic="${escapeHtml(topic.title)}">Rename</button>
+              <button type="button" class="topic-action" data-delete-topic="${escapeHtml(topic.title)}">Delete category</button>
             </span>
           </summary>
           <div class="kind-groups">${itemsHtml}</div>
@@ -2169,13 +2254,13 @@
       document.querySelectorAll("[data-delete-id]").forEach(button => {
         button.addEventListener("click", event => {
           event.preventDefault();
-          event.stopPropagation();
+          event.stopImmediatePropagation();
           const isCustom = String(button.dataset.deleteCustom) === "true";
           deleteItem(button.dataset.deleteId, button.dataset.deleteTitle, isCustom);
         });
       });
 
-      document.querySelectorAll("[data-delete-topic]").forEach(button => {
+      document.querySelectorAll(".topic-action[data-delete-topic]").forEach(button => {
         button.addEventListener("click", event => {
           event.preventDefault();
           event.stopPropagation();
