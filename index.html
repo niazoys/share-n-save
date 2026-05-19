@@ -1,0 +1,1870 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#111827" />
+  <title>Topic-wise Research Reading List</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <style>
+    :root {
+      --bg: #f7f7f8;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --paper: #e7f8ef;
+      --paper-text: #047857;
+      --blog: #fff7ed;
+      --blog-text: #c2410c;
+      --combo: #f0f9ff;
+      --combo-text: #0369a1;
+      --other: #f3f4f6;
+      --other-text: #374151;
+      --danger: #fee2e2;
+      --danger-text: #991b1b;
+      --shadow: 0 10px 24px rgba(0,0,0,.06);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 20% 0%, #eef2ff 0, transparent 28rem), var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    header {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 40px 22px 20px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 5vw, 48px);
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+    }
+    .subtitle {
+      color: var(--muted);
+      max-width: 820px;
+      font-size: 16px;
+    }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(16px);
+      background: rgba(247,247,248,.82);
+      border-bottom: 1px solid var(--border);
+    }
+    .toolbar-inner {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 14px 22px;
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .search {
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 15px;
+      outline: none;
+      background: white;
+      box-shadow: 0 4px 14px rgba(0,0,0,.04);
+    }
+    .filters, .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
+    }
+    .actions {
+      margin-left: 6px;
+    }
+    button, .file-button {
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 999px;
+      padding: 10px 13px;
+      cursor: pointer;
+      color: var(--text);
+      font-weight: 650;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    button:hover, .file-button:hover { background: #f9fafb; }
+    button.active {
+      background: var(--text);
+      color: white;
+      border-color: var(--text);
+    }
+    #addItemBtn {
+      background: #111827;
+      color: white;
+      border-color: #111827;
+    }
+    main {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 22px;
+    }
+    aside {
+      position: sticky;
+      top: 90px;
+      align-self: start;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      max-height: calc(100vh - 112px);
+      overflow: auto;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .stat {
+      padding: 12px;
+      background: #fafafa;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+    .stat strong {
+      display: block;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
+    .stat span { color: var(--muted); font-size: 13px; }
+    .toc a {
+      display: block;
+      text-decoration: none;
+      color: var(--text);
+      padding: 9px 10px;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+    .toc a:hover { background: #f3f4f6; }
+    .hint {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 11px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: #fafafa;
+    }
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    details {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    details[open] summary {
+      border-bottom: 1px solid var(--border);
+    }
+    summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    summary::-webkit-details-marker { display: none; }
+    .topic-title {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .topic-count {
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: 13px;
+      background: #f9fafb;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
+    .items {
+      padding: 8px;
+    }
+    .item {
+      display: grid;
+      grid-template-columns: 120px 1fr auto;
+      gap: 14px;
+      padding: 13px 12px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      align-items: start;
+    }
+    .item:hover {
+      background: #fafafa;
+      border-color: var(--border);
+    }
+    .badge {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+    .badge.paper, .badge.paperpdf { background: var(--paper); color: var(--paper-text); }
+    .badge.blog { background: var(--blog); color: var(--blog-text); }
+    .badge.paperblog { background: var(--combo); color: var(--combo-text); }
+    .badge.other { background: var(--other); color: var(--other-text); }
+    .custom-mark {
+      display: inline-flex;
+      margin-left: 7px;
+      font-size: 11px;
+      color: #854d0e;
+      background: #fef3c7;
+      border-radius: 999px;
+      padding: 2px 7px;
+      vertical-align: middle;
+    }
+    .item a {
+      color: #111827;
+      text-decoration: none;
+      font-weight: 750;
+    }
+    .item a:hover { text-decoration: underline; }
+    .note {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .delete-btn {
+      border-color: transparent;
+      background: var(--danger);
+      color: var(--danger-text);
+      padding: 7px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+    .empty {
+      display: none;
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      background: white;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+    }
+    footer {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 8px 22px 40px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    dialog {
+      width: min(760px, calc(100vw - 28px));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 0;
+      box-shadow: 0 30px 90px rgba(0,0,0,.22);
+    }
+    dialog::backdrop {
+      background: rgba(17, 24, 39, .42);
+      backdrop-filter: blur(5px);
+    }
+    .modal-head {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .modal-head h2 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
+    .modal-body {
+      padding: 20px 22px 10px;
+    }
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+    .field.full { grid-column: 1 / -1; }
+    label {
+      font-weight: 750;
+      font-size: 13px;
+    }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 11px 12px;
+      font: inherit;
+      background: white;
+    }
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+    }
+    .share-box {
+      background: #f9fafb;
+      border: 1px dashed var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .share-box p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .modal-actions {
+      padding: 16px 22px 22px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .primary {
+      background: #111827;
+      color: white;
+      border-color: #111827;
+    }
+    .ghost {
+      background: white;
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      background: #111827;
+      color: white;
+      padding: 11px 14px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      font-size: 14px;
+      z-index: 99;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+    input[type=file] { display: none; }
+
+    @media (max-width: 920px) {
+      .toolbar-inner { grid-template-columns: 1fr; }
+      .filters { justify-content: flex-start; }
+      main { grid-template-columns: 1fr; }
+      aside { position: static; max-height: none; }
+      .item { grid-template-columns: 1fr; gap: 8px; }
+      .modal-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Topic-wise Research Reading List</h1>
+    <p class="subtitle">Browse, search, and extend the list. New entries are saved locally in this browser. To share from X/LinkedIn Android directly into this list, host this folder over HTTPS, install it from Chrome, then use Android’s Share button.</p>
+  </header>
+
+  <section class="toolbar">
+    <div class="toolbar-inner">
+      <input id="search" class="search" type="search" placeholder="Search topics, titles, notes, or URLs…" />
+      <div class="filters" role="group" aria-label="Type filters">
+        <button data-filter="all" class="active">All</button>
+        <button data-filter="paper">Papers</button>
+        <button data-filter="blog">Blogs</button>
+        <button data-filter="other">Others</button>
+        <span class="actions">
+          <button id="addItemBtn">＋ Add item</button>
+          <button id="exportBtn">Export</button>
+          <label class="file-button" for="importFile">Import</label>
+          <input id="importFile" type="file" accept="application/json,.json" />
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <aside>
+      <div class="stats">
+        <div class="stat"><strong id="topicStat">0</strong><span>topics</span></div>
+        <div class="stat"><strong id="itemStat">0</strong><span>items</span></div>
+        <div class="stat"><strong id="customStat">0</strong><span>added</span></div>
+        <div class="stat"><strong id="visibleStat">0</strong><span>visible</span></div>
+      </div>
+      <nav id="toc" class="toc"></nav>
+      <div class="hint">
+        Android share target: host this folder as a PWA, open it in Chrome, choose “Add to Home screen” or “Install app”, then share from X/LinkedIn to “Research List”.
+      </div>
+    </aside>
+
+    <section id="content" class="content"></section>
+  </main>
+
+  <footer>
+    Local additions are stored in your browser only. Use Export after adding items if you want a backup or want to move the list to another device.
+  </footer>
+
+  <dialog id="itemDialog">
+    <form id="itemForm" method="dialog">
+      <div class="modal-head">
+        <h2>Add a new item</h2>
+        <button type="button" class="ghost" id="closeDialogBtn">Close</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="share-box">
+          <p>Paste text copied from X/LinkedIn here, or let Android share-target prefill it automatically after installation as a PWA.</p>
+          <textarea id="sharedText" placeholder="Paste shared text/link here…"></textarea>
+          <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" id="useSharedTextBtn">Use pasted share</button>
+            <button type="button" id="pasteClipboardBtn">Paste from clipboard</button>
+          </div>
+        </div>
+
+        <div class="modal-grid">
+          <div class="field">
+            <label for="topicSelect">Category</label>
+            <select id="topicSelect" required></select>
+          </div>
+          <div class="field">
+            <label for="kindSelect">Subcategory</label>
+            <select id="kindSelect" required>
+              <option>Paper</option>
+              <option>Blog</option>
+              <option>Paper + Blog</option>
+              <option>Paper / PDF</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="titleInput">Title</label>
+            <input id="titleInput" required placeholder="e.g., New Flow Matching Paper" />
+          </div>
+          <div class="field full">
+            <label for="urlInput">Link</label>
+            <input id="urlInput" placeholder="https://…" />
+          </div>
+          <div class="field full">
+            <label for="noteInput">Note</label>
+            <textarea id="noteInput" placeholder="Short note, why it matters, or what to read first…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" id="clearFormBtn">Clear</button>
+        <button type="submit" class="primary">Save item</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const BASE_DATA = [
+  {
+    "title": "Flow matching, diffusion, flow maps, and generative-model theory",
+    "items": [
+      {
+        "kind": "Paper",
+        "title": "Proteina: Scaling Flow-based Protein Structure Generative Models",
+        "url": "https://arxiv.org/abs/2503.00710",
+        "note": "Flow-based protein structure generation; also relevant to BioML.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Fractional Diffusion Bridge Models",
+        "url": "https://arxiv.org/abs/2511.01795",
+        "note": "Diffusion bridge framework using fractional Brownian-motion-inspired dynamics.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "The Principles of Diffusion Models",
+        "url": "https://arxiv.org/abs/2510.21890",
+        "note": "Monograph-style overview of diffusion model principles.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Consistent Sampling and Simulation: Molecular Dynamics with Energy-Based Diffusion Models",
+        "url": "https://arxiv.org/abs/2506.17139",
+        "note": "Diffusion models for molecular distributions and simulation consistency.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Sequence Modeling with Spectral Mean Flows",
+        "url": "https://arxiv.org/abs/2510.15366",
+        "note": "Operator-theoretic sequence modeling with MMD gradient flow.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Gradient Variance Reveals Failure Modes in Flow-Based Generative Models",
+        "url": "https://arxiv.org/abs/2510.18118",
+        "note": "Failure modes and memorization in rectified/flow-based models.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Foundations of Diffusion Models in General State Spaces",
+        "url": "https://arxiv.org/abs/2512.05092",
+        "note": "General-state-space theoretical foundations for diffusion models.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Back to Basics: Let Denoising Generative Models Denoise",
+        "url": "https://arxiv.org/abs/2511.13720",
+        "note": "Denoising-focused view of generative modeling.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Contact Wasserstein Geodesics for Non-Conservative Schrödinger Bridges",
+        "url": "https://arxiv.org/abs/2511.06856",
+        "note": "Schrödinger bridges and optimal transport geometry.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Learning Geometry and Topology via Multi-Chart Flows",
+        "url": "https://arxiv.org/abs/2505.24665",
+        "note": "Flow models for geometry/topology learning.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Learning the integral of a diffusion model — Sander Dieleman",
+        "url": "https://sander.ai/2026/05/06/flow-maps.html",
+        "note": "Blog explanation of flow maps / diffusion model integration.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Flowception: Temporally Expansive Flow Matching for Video Generation",
+        "url": "https://flowception-meta.github.io/",
+        "note": "Project page / blog-style paper page.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Generative Modeling via Drifting — ChapterPal",
+        "url": "https://www.chapterpal.com/s/d6f73266/generative-modeling-via-drifting",
+        "note": "Readable conceptual material on generative modeling via drifting.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Flow-based LLMs",
+        "url": "https://flow-based-llms.github.io/",
+        "note": "Project/blog page for flow-based language models.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Few-step diffusion unification: Consistency Models, Shortcut Models, MeanFlow",
+        "url": "https://x.com/huijiezh/status/1982915710595879058",
+        "note": "X thread.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Riemannian MeanFlow / Flow Maps on manifolds",
+        "url": "https://x.com/bose_joey/status/1983905133768450465",
+        "note": "X thread.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Generation phases of Flow Matching",
+        "url": "https://x.com/mathusmassias/status/1985994438800216113",
+        "note": "X thread.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Clean-prediction vs eps/v prediction in high dimensions",
+        "url": "https://x.com/sedielem/status/1990820726023086477",
+        "note": "X thread.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "PairFlow / BézierFlow",
+        "url": "https://x.com/i/status/2045880674343907775",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Continuous Adversarial Flow Models",
+        "url": "https://x.com/i/status/2044269457086779877",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Diamond Maps for diffusion guidance",
+        "url": "https://x.com/i/status/2046967127748308997",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Normalizing Trajectory Models",
+        "url": "https://x.com/i/status/2055396115604734281",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Action-to-Action Flow Matching for robotics",
+        "url": "https://x.com/i/status/2050444922327904735",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Flux Matching",
+        "url": "https://x.com/i/status/2054215048579748041",
+        "note": "X post.",
+        "custom": false
+      }
+    ]
+  },
+  {
+    "title": "Diffusion / flow models for language and discrete data",
+    "items": [
+      {
+        "kind": "Paper",
+        "title": "Towards Closing the Autoregressive Gap in Language Modeling via Entropy-Gated Continuous Bitstream Diffusion",
+        "url": "https://arxiv.org/abs/2605.07013",
+        "note": "Continuous bitstream diffusion for language modeling.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Language Modeling with Hyperspherical Flows",
+        "url": "https://x.com/i/status/2054687860108750950",
+        "note": "Paper announced inside social post.",
+        "custom": false
+      },
+      {
+        "kind": "Paper + Blog",
+        "title": "Discrete Flow Maps",
+        "url": "https://x.com/i/status/2048438641165517201",
+        "note": "Social post includes both paper and blog links.",
+        "custom": false
+      },
+      {
+        "kind": "Paper + Blog",
+        "title": "Flow Map Language Models",
+        "url": "https://x.com/i/status/2041546540737859915",
+        "note": "Social post includes both paper and blog links.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Categorical Flow Maps for discrete diffusion",
+        "url": "https://x.com/i/status/2023412112052158597",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Introspective Diffusion LM",
+        "url": "https://x.com/i/status/2043908355283157248",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "LangFlow: continuous diffusion language modeling",
+        "url": "https://x.com/i/status/2044609497981661548",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Continuous DLM follow-up / SED-related thread",
+        "url": "https://x.com/i/status/2054178372633141674",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Discrete-process distillation",
+        "url": "https://x.com/i/status/2056003884263395383",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Count Bridges for count/discrete data",
+        "url": "https://x.com/i/status/2047856265292832806",
+        "note": "X post.",
+        "custom": false
+      }
+    ]
+  },
+  {
+    "title": "Visual generation, tokenizers, image/video diffusion",
+    "items": [
+      {
+        "kind": "Paper",
+        "title": "One Layer Is Enough: Adapting Pretrained Visual Encoders for Image Generation",
+        "url": "https://huggingface.co/papers/2512.07829",
+        "note": "Visual encoder adaptation for generation.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "REPA-E: Unlocking VAE for End-to-End Tuning with Latent Diffusion Transformers",
+        "url": "https://arxiv.org/abs/2504.10483",
+        "note": "End-to-end VAE + DiT tuning with representation alignment.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Faithful Contouring: Near-Lossless 3D Voxel Representation Free from Iso-surface",
+        "url": "https://arxiv.org/abs/2511.04029",
+        "note": "3D voxel representation.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "VL-JEPA: Joint Embedding Predictive Architecture for Vision-language",
+        "url": "https://arxiv.org/abs/2512.10942",
+        "note": "Vision-language JEPA architecture.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Flowception",
+        "url": "https://flowception-meta.github.io/",
+        "note": "Project page.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Demystifying Video Reasoning",
+        "url": "https://www.wruisi.com/demystifying_video_reasoning/",
+        "note": "Blog post.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Universal Normal Embedding — Medium",
+        "url": "https://medium.com/@rbetser93/the-universal-normal-embedding-3a99032064ce",
+        "note": "Blog post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "NEO native vision model thread",
+        "url": "https://x.com/rryssf_/status/1982473781311377608",
+        "note": "X thread.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "DiP: Taming Diffusion Models in Pixel Space",
+        "url": "https://x.com/iScienceLuvr/status/1993288136244576579",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Unified Latents",
+        "url": "https://x.com/i/status/2025955633451700484",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Sphere Encoder",
+        "url": "https://x.com/i/status/2023796756366963032",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Foveated Diffusion",
+        "url": "https://x.com/i/status/2036819672507793643",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Flowception code release",
+        "url": "https://x.com/i/status/2053109255734165842",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Raw-pixel multimodal model discussion",
+        "url": "https://x.com/i/status/2053128307617456545",
+        "note": "X post.",
+        "custom": false
+      }
+    ]
+  },
+  {
+    "title": "BioML, protein, RNA, molecular design, and chemistry",
+    "items": [
+      {
+        "kind": "Paper",
+        "title": "Proteina: Scaling Flow-based Protein Structure Generative Models",
+        "url": "https://arxiv.org/abs/2503.00710",
+        "note": "Flow-based protein backbone generation.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Shoot from the HIP: Hessian Interatomic Potentials without derivatives",
+        "url": "https://arxiv.org/abs/2509.21624",
+        "note": "Predicting molecular Hessians directly.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Platonic representation of foundation machine learning interatomic potentials",
+        "url": "https://arxiv.org/abs/2512.05349",
+        "note": "Common latent geometry across ML interatomic potentials.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Controllable protein design with particle-based Feynman-Kac steering",
+        "url": "https://arxiv.org/abs/2511.09216",
+        "note": "Steered protein design.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Adaptive Protein Tokenization",
+        "url": "https://arxiv.org/abs/2602.06418",
+        "note": "Protein tokenization.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "General Multimodal Protein Design Enables DNA-Encoding of Chemistry",
+        "url": "https://arxiv.org/abs/2604.05181",
+        "note": "Multimodal protein design.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "DISCO — Teaching AI to Invent Enzymes Nature Never Imagined",
+        "url": "https://disco-design.github.io/",
+        "note": "Project/blog page.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Crystalite: A Lightweight Transformer for Efficient Crystal Modeling",
+        "url": "https://stases.github.io/blogposts/crystalite/",
+        "note": "Blog post.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "kUPS: a molecular simulation engine for the AI era",
+        "url": "https://medium.com/@CuspAI/kups-a-molecular-simulation-engine-for-the-ai-era-b213963a2359",
+        "note": "Blog post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "BoltzGen binder design — X",
+        "url": "https://x.com/HannesStaerk/status/1982567447413854234",
+        "note": "X thread.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "BoltzGen binder design — LinkedIn",
+        "url": "https://www.linkedin.com/posts/hannes-stark_excited-to-release-boltzgen-which-brings-activity-7388335198528237568-Tjkp",
+        "note": "LinkedIn post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "QHFlow for DFT Hamiltonian prediction",
+        "url": "#",
+        "note": "LinkedIn post in source; link was truncated in pasted export.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "OXtal molecular crystal structure prediction",
+        "url": "#",
+        "note": "LinkedIn post in source; link was truncated in pasted export.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "gRNAde RNA design",
+        "url": "#",
+        "note": "LinkedIn post in source; link was truncated in pasted export.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "minAlphaFold2",
+        "url": "https://x.com/i/status/2046956424471761082",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "ConforNets for AlphaFold3 conformational control",
+        "url": "https://x.com/i/status/2046615914179916059",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "ENSEMBITS protein dynamics alphabet",
+        "url": "https://x.com/i/status/2055745651443659249",
+        "note": "X post.",
+        "custom": false
+      }
+    ]
+  },
+  {
+    "title": "Geometry, manifolds, equivariance, topology",
+    "items": [
+      {
+        "kind": "Paper",
+        "title": "Diffusion Generative Modeling on Lie Group Representations",
+        "url": "https://www.linkedin.com/posts/activity-7396471029335830528-04-X",
+        "note": "LinkedIn post announcing paper.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Mathematical Foundations of Geometric Deep Learning",
+        "url": "https://arxiv.org/abs/2508.02723",
+        "note": "Geometric deep learning foundations.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Equivariant score-based generative models provably learn distributions with symmetries efficiently",
+        "url": "https://arxiv.org/abs/2410.01244",
+        "note": "Theory of equivariant score-based models.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Learning Geometry and Topology via Multi-Chart Flows",
+        "url": "https://arxiv.org/abs/2505.24665",
+        "note": "Flow models for geometry/topology learning.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Equivariant Many-body Message Passing Interatomic Potentials for Magnetic Materials",
+        "url": "https://arxiv.org/abs/2604.08143",
+        "note": "Equivariant interatomic potentials.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Introduction to Manifold Diffusion Geometry",
+        "url": "https://www.iolojones.co.uk/research/notes/diffusion-geometry-notebooks/7-manifold-diffusion-geometry-intro/",
+        "note": "Notebook/blog.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "DSG: Parallelised Differentiable Straightest Geodesics for 3D Meshes",
+        "url": "http://circle-group.github.io/research/DSG",
+        "note": "Project page.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Topological Deep Learning Primer",
+        "url": "https://www.linkedin.com/posts/benedekrozemberczki_machinelearning-deeplearning-activity-7416424816460849152-8Y8d",
+        "note": "LinkedIn primer post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Riemannian deep learning ICLR 2026 papers",
+        "url": "#",
+        "note": "LinkedIn post in source; link was truncated in pasted export.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Canonical diffusion / stop paying the equivariance tax",
+        "url": "https://x.com/i/status/2026702550754377906",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Global Geometry Is Not Enough for Vision Representations",
+        "url": "https://x.com/i/status/2052268921705914521",
+        "note": "X post.",
+        "custom": false
+      }
+    ]
+  },
+  {
+    "title": "Representation learning, JEPA, neural geometry, embeddings",
+    "items": [
+      {
+        "kind": "Paper",
+        "title": "Disentangled Representation Learning with the Gromov-Monge Gap",
+        "url": "https://arxiv.org/abs/2407.07829",
+        "note": "Disentangled representations with geometric constraints.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "VL-JEPA",
+        "url": "https://arxiv.org/abs/2512.10942",
+        "note": "Joint embedding predictive architecture for vision-language.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Spontaneous symmetry breaking and Goldstone modes for deep information propagation",
+        "url": "https://arxiv.org/abs/2605.14685",
+        "note": "Theoretical representation/propagation paper.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Learning Deep Representations of Data Distributions — community resources",
+        "url": "https://ma-lab-berkeley.github.io/deep-representation-learning-book/community.html",
+        "note": "Book/community resources.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "The World Inside Neural Networks — Goodfire",
+        "url": "https://www.goodfire.ai/research/the-world-inside-neural-networks",
+        "note": "Research blog.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Manifold Steering blog/paper post",
+        "url": "https://x.com/i/status/2052431330231877639",
+        "note": "Social post with paper/blog content.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Kieran Didi: unification of representation learning and generative modelling",
+        "url": "https://www.linkedin.com/posts/kieran-didi_the-unification-of-representation-learning-activity-7427546317075456000-_AmJ",
+        "note": "LinkedIn post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "JEPA + Koopman invariants",
+        "url": "https://x.com/i/status/2004725104018948175",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Embedding geometry / hallucination claim threads",
+        "url": "https://x.com/i/status/2052532004919361958",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Global geometry in vision representations",
+        "url": "https://x.com/i/status/2052268921705914521",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Superposition / neural scaling laws",
+        "url": "https://x.com/i/status/2027872858114818496",
+        "note": "X post.",
+        "custom": false
+      }
+    ]
+  },
+  {
+    "title": "Transformers, attention, LLM architectures, SSMs, loop models",
+    "items": [
+      {
+        "kind": "Paper",
+        "title": "Limitations of Normalization in Attention Mechanism",
+        "url": "https://www.linkedin.com/posts/tapetrova_neurips-neurips2025-machinelearning-ugcPost-7402488679287660544-oQcQ",
+        "note": "LinkedIn post announcing paper.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Why Are Linear RNNs More Parallelizable?",
+        "url": "https://arxiv.org/abs/2603.03612",
+        "note": "Linear RNN parallelization.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Inverse Depth Scaling From Most Layers Being Similar",
+        "url": "https://arxiv.org/abs/2602.05970",
+        "note": "Transformer depth scaling.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Energy Transformer",
+        "url": "https://arxiv.org/abs/2302.07253",
+        "note": "Energy-based transformer architecture.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Transformers are Inherently Succinct",
+        "url": "https://openreview.net/forum?id=Yxz92UuPLQ",
+        "note": "OpenReview paper.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Understanding RoPE: From Rotary Embeddings to Context Extension",
+        "url": "https://x.com/i/status/2028042699652419984",
+        "note": "Social post pointing to explainer.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Paged Attention clearly explained",
+        "url": "https://x.com/i/status/2031624056072712547",
+        "note": "Social post pointing to explainer.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Learning Mechanics",
+        "url": "https://learningmechanics.pub/",
+        "note": "Blog/site.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Procedural Pretraining",
+        "url": "https://zlshinnick.github.io/procedural-pretraining-page/",
+        "note": "Project page.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Neural Memory / Test-Time Training",
+        "url": "https://x.com/_philschmid/status/1997227157748060277",
+        "note": "X thread.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Mamba-3 / hybrid models",
+        "url": "https://x.com/i/status/2033948415139451045",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "DeltaNet / Kimi Delta Attention thread",
+        "url": "https://x.com/nrehiew_/status/1986079207513075854",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Exclusive Self Attention",
+        "url": "https://x.com/i/status/2032014776822612193",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "XSA follow-up",
+        "url": "https://x.com/i/status/2034481360463863992",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Jacobi Forcing",
+        "url": "https://x.com/i/status/2001395438059164160",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Stronger Normalization-Free Transformers / Derf",
+        "url": "https://x.com/i/status/1999321116641497355",
+        "note": "X post.",
+        "custom": false
+      }
+    ]
+  },
+  {
+    "title": "AI agents, autoresearch, tooling, kernels, systems",
+    "items": [
+      {
+        "kind": "Paper",
+        "title": "Delightful Policy Gradient",
+        "url": "https://arxiv.org/abs/2603.14608v1",
+        "note": "RL / policy gradient paper.",
+        "custom": false
+      },
+      {
+        "kind": "Paper",
+        "title": "Offline Materials Optimization with CliqueFlowmer",
+        "url": "https://arxiv.org/abs/2603.06082",
+        "note": "Materials optimization.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "How to win a best paper award — Nicholas Carlini",
+        "url": "https://nicholas.carlini.com/writing/2026/how-to-win-a-best-paper-award.html",
+        "note": "Advice blog.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "AutoResearch GitHub",
+        "url": "https://github.com/karpathy/autoresearch",
+        "note": "Code/project repository.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Conference poster Claude Code skill",
+        "url": "https://x.com/i/status/2033672320200368342",
+        "note": "Social post with tooling resource.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "AutoKernel / GPU kernel optimization",
+        "url": "https://x.com/Akashi203/status/2031533857082646769",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Autoresearch@home",
+        "url": "https://x.com/i/status/2031867233387810949",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "AI-Researcher lifecycle paper/thread",
+        "url": "https://x.com/i/status/2034253585941450859",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Autoresearch overfitting caution",
+        "url": "https://x.com/i/status/2034393884604637358",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Weco observability for autoresearch agents",
+        "url": "https://x.com/i/status/2034687075287544047",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Graphify / LLM knowledge-base workflow",
+        "url": "https://x.com/i/status/2041192946369007924",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Career-ops AI job search system",
+        "url": "https://x.com/i/status/2041774894044835928",
+        "note": "X post.",
+        "custom": false
+      }
+    ]
+  },
+  {
+    "title": "Courses, notes, books, educational resources",
+    "items": [
+      {
+        "kind": "Paper / PDF",
+        "title": "Computational Thinking — Jeannette Wing",
+        "url": "https://www.cs.cmu.edu/~15110-s13/Wing06-ct.pdf",
+        "note": "Classic PDF.",
+        "custom": false
+      },
+      {
+        "kind": "Paper / PDF",
+        "title": "Alice Volume 2 RL PDF",
+        "url": "https://www.sscardapane.it/assets/alice/Alice_volume_2_rl.pdf",
+        "note": "RL textbook/notes.",
+        "custom": false
+      },
+      {
+        "kind": "Paper / PDF",
+        "title": "Gated attention paper PDF",
+        "url": "https://arxiv.org/pdf/2401.11143",
+        "note": "PDF.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "KAIST diffusion course",
+        "url": "https://diffusion.kaist.ac.kr/",
+        "note": "Course site.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "MIT diffusion course 2026",
+        "url": "https://diffusion.csail.mit.edu/2026/index.html",
+        "note": "Course site.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Learning Deep Representations of Data Distributions",
+        "url": "https://ma-lab-berkeley.github.io/deep-representation-learning-book/community.html",
+        "note": "Book/community page.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "Flow matching / diffusion lecture notes",
+        "url": "https://x.com/i/status/2035006365425410315",
+        "note": "Social post pointing to notes.",
+        "custom": false
+      },
+      {
+        "kind": "Blog",
+        "title": "T. Anderson Keller research page posts",
+        "url": "https://akandykeller.github.io/research/2025-10-02-wavelet-score/",
+        "note": "Research notes/blog.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Building Blocks of Today’s and Tomorrow’s LMs talk",
+        "url": "https://x.com/rasbt/status/1987157794202505395",
+        "note": "Talk/video link from X.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Flow-matching course update",
+        "url": "https://x.com/i/status/2025304154483122319",
+        "note": "X post.",
+        "custom": false
+      }
+    ]
+  },
+  {
+    "title": "Jobs, internships, opportunities",
+    "items": [
+      {
+        "kind": "Other",
+        "title": "NVIDIA Research internships",
+        "url": "https://x.com/ekta_prashnani/status/1982882316981813377",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Google / Jon Barron internships",
+        "url": "https://x.com/jon_barron/status/1985781534880879094",
+        "note": "X post.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Meta careers role",
+        "url": "https://www.metacareers.com/profile/job_details/2027075998050023/",
+        "note": "Job page.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Indeed ML internships search",
+        "url": "https://de.indeed.com/jobs?q=internship+machine+learning&l=&from=searchOnHP&vjk=7c78de9e93100245",
+        "note": "Job search.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Google PhD Fellowship / related opportunity",
+        "url": "https://arxiv.org/abs/2603.14608v1",
+        "note": "Opportunity was mentioned near this paper in source.",
+        "custom": false
+      }
+    ]
+  },
+  {
+    "title": "User/project notes and local documents",
+    "items": [
+      {
+        "kind": "Other",
+        "title": "IMMFM / flow-matching reviewer response notes",
+        "url": "#",
+        "note": "Text notes from pasted history.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "AISTATS presentation: Immfm_Presentation_Aistats.pptx",
+        "url": "#",
+        "note": "Local/uploaded presentation reference.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "AISTATS poster: Aistats_poster_new_version.pdf",
+        "url": "#",
+        "note": "Local/uploaded poster reference.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Notes on quadratic interpolation in chaotic regimes",
+        "url": "#",
+        "note": "Text notes from pasted history.",
+        "custom": false
+      },
+      {
+        "kind": "Other",
+        "title": "Notes on trying equivariant MPNN additions",
+        "url": "#",
+        "note": "Text notes from pasted history.",
+        "custom": false
+      }
+    ]
+  }
+];
+    const STORAGE_KEY = "topicwiseResearchReadingList.customItems.v1";
+    const LAST_TOPIC_KEY = "topicwiseResearchReadingList.lastTopic.v1";
+
+    const state = {
+      filter: "all",
+      query: "",
+      customItems: loadCustomItems()
+    };
+
+    const els = {
+      search: document.getElementById("search"),
+      content: document.getElementById("content"),
+      toc: document.getElementById("toc"),
+      topicStat: document.getElementById("topicStat"),
+      itemStat: document.getElementById("itemStat"),
+      customStat: document.getElementById("customStat"),
+      visibleStat: document.getElementById("visibleStat"),
+      addItemBtn: document.getElementById("addItemBtn"),
+      exportBtn: document.getElementById("exportBtn"),
+      importFile: document.getElementById("importFile"),
+      dialog: document.getElementById("itemDialog"),
+      form: document.getElementById("itemForm"),
+      closeDialogBtn: document.getElementById("closeDialogBtn"),
+      topicSelect: document.getElementById("topicSelect"),
+      kindSelect: document.getElementById("kindSelect"),
+      titleInput: document.getElementById("titleInput"),
+      urlInput: document.getElementById("urlInput"),
+      noteInput: document.getElementById("noteInput"),
+      sharedText: document.getElementById("sharedText"),
+      useSharedTextBtn: document.getElementById("useSharedTextBtn"),
+      pasteClipboardBtn: document.getElementById("pasteClipboardBtn"),
+      clearFormBtn: document.getElementById("clearFormBtn"),
+      toast: document.getElementById("toast")
+    };
+
+    function normalizeKindClass(kind) {
+      return kind.toLowerCase().replaceAll(" + ", "").replaceAll(" / ", "").replaceAll(" ", "");
+    }
+
+    function loadCustomItems() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      } catch (err) {
+        console.warn("Could not load custom items", err);
+        return [];
+      }
+    }
+
+    function saveCustomItems() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.customItems));
+    }
+
+    function mergedData() {
+      const copy = BASE_DATA.map(topic => ({
+        title: topic.title,
+        items: topic.items.map(item => ({ ...item, custom: false }))
+      }));
+      const byTitle = new Map(copy.map(topic => [topic.title, topic]));
+      for (const item of state.customItems) {
+        const topic = byTitle.get(item.topicTitle);
+        if (topic) topic.items.push({ ...item, custom: true });
+      }
+      return copy;
+    }
+
+    function escapeHtml(str) {
+      return String(str || "").replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[c]));
+    }
+
+    function kindMatches(kind, filter) {
+      const k = (kind || "").toLowerCase();
+      if (filter === "all") return true;
+      if (filter === "paper") return k.includes("paper");
+      if (filter === "blog") return k.includes("blog");
+      if (filter === "other") return k.includes("other");
+      return true;
+    }
+
+    function itemMatches(item, topicTitle) {
+      const q = state.query.trim().toLowerCase();
+      const haystack = [item.kind, item.title, item.url, item.note, topicTitle].join(" ").toLowerCase();
+      return (!q || haystack.includes(q)) && kindMatches(item.kind, state.filter);
+    }
+
+    function render() {
+      const data = mergedData();
+      els.topicStat.textContent = data.length;
+      const totalItems = data.reduce((acc, topic) => acc + topic.items.length, 0);
+      els.itemStat.textContent = totalItems;
+      els.customStat.textContent = state.customItems.length;
+
+      els.toc.innerHTML = data.map((topic, idx) =>
+        `<a href="#topic-${idx}">${escapeHtml(topic.title)}</a>`
+      ).join("");
+
+      let visibleCount = 0;
+
+      els.content.innerHTML = data.map((topic, idx) => {
+        const visibleItems = topic.items.filter(item => itemMatches(item, topic.title));
+        visibleCount += visibleItems.length;
+        if (!visibleItems.length) return "";
+
+        const itemsHtml = visibleItems.map(item => {
+          const badgeClass = normalizeKindClass(item.kind);
+          const isRealLink = item.url && item.url !== "#";
+          const titleHtml = isRealLink
+            ? `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>`
+            : `<strong>${escapeHtml(item.title)}</strong>`;
+          const deleteBtn = item.custom
+            ? `<button class="delete-btn" data-delete-id="${escapeHtml(item.id)}">Delete</button>`
+            : "";
+          const customMark = item.custom ? `<span class="custom-mark">Added</span>` : "";
+          return `<article class="item">
+            <div><span class="badge ${badgeClass}">${escapeHtml(item.kind)}</span></div>
+            <div>
+              ${titleHtml}${customMark}
+              <div class="note">${escapeHtml(item.note || "")}</div>
+            </div>
+            <div>${deleteBtn}</div>
+          </article>`;
+        }).join("");
+
+        return `<details id="topic-${idx}" open>
+          <summary>
+            <span class="topic-title">${escapeHtml(topic.title)}</span>
+            <span class="topic-count">${visibleItems.length} / ${topic.items.length} items</span>
+          </summary>
+          <div class="items">${itemsHtml}</div>
+        </details>`;
+      }).join("") || `<div class="empty" style="display:block;">No matching items. Try a broader search or switch filters.</div>`;
+
+      els.visibleStat.textContent = visibleCount;
+
+      document.querySelectorAll("[data-delete-id]").forEach(button => {
+        button.addEventListener("click", () => deleteCustomItem(button.dataset.deleteId));
+      });
+    }
+
+    function populateTopicSelect() {
+      els.topicSelect.innerHTML = BASE_DATA.map(topic =>
+        `<option value="${escapeHtml(topic.title)}">${escapeHtml(topic.title)}</option>`
+      ).join("");
+    }
+
+    function extractUrl(text) {
+      const match = String(text || "").match(/https?:\/\/[^\s)\]}>"']+/i);
+      return match ? match[0] : "";
+    }
+
+    function deriveTitleFromSharedText(text, url) {
+      const cleaned = String(text || "")
+        .replace(url || "", "")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (cleaned) return cleaned.slice(0, 140);
+      if (url) {
+        try {
+          const u = new URL(url);
+          return u.hostname.replace(/^www\./, "");
+        } catch (_) {
+          return url;
+        }
+      }
+      return "";
+    }
+
+    function openAddModal(prefill = {}) {
+      populateTopicSelect();
+      const lastTopic = localStorage.getItem(LAST_TOPIC_KEY);
+      els.topicSelect.value = prefill.topicTitle || lastTopic || BASE_DATA[0].title;
+      els.kindSelect.value = prefill.kind || "Other";
+      els.titleInput.value = prefill.title || "";
+      els.urlInput.value = prefill.url || "";
+      els.noteInput.value = prefill.note || "";
+      els.sharedText.value = prefill.sharedText || "";
+      els.dialog.showModal();
+      setTimeout(() => {
+        if (!els.titleInput.value) els.titleInput.focus();
+      }, 50);
+    }
+
+    function clearForm() {
+      els.sharedText.value = "";
+      els.kindSelect.value = "Other";
+      els.titleInput.value = "";
+      els.urlInput.value = "";
+      els.noteInput.value = "";
+    }
+
+    function useSharedText() {
+      const text = els.sharedText.value.trim();
+      const url = extractUrl(text);
+      if (url && !els.urlInput.value) els.urlInput.value = url;
+      if (!els.titleInput.value) els.titleInput.value = deriveTitleFromSharedText(text, url);
+      if (!els.noteInput.value) els.noteInput.value = text;
+      showToast("Shared text parsed. Choose category and save.");
+    }
+
+    async function pasteClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        els.sharedText.value = text;
+        useSharedText();
+      } catch (err) {
+        showToast("Clipboard paste is blocked. Paste manually instead.");
+      }
+    }
+
+    function addCustomItem(event) {
+      event.preventDefault();
+      const topicTitle = els.topicSelect.value;
+      const kind = els.kindSelect.value;
+      const title = els.titleInput.value.trim();
+      const url = els.urlInput.value.trim() || "#";
+      const note = els.noteInput.value.trim();
+
+      if (!title) {
+        showToast("Please add a title.");
+        return;
+      }
+
+      const item = {
+        id: "custom-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
+        topicTitle, kind, title, url, note,
+        createdAt: new Date().toISOString()
+      };
+
+      state.customItems.push(item);
+      saveCustomItems();
+      localStorage.setItem(LAST_TOPIC_KEY, topicTitle);
+      els.dialog.close();
+      render();
+      showToast("Item added.");
+    }
+
+    function deleteCustomItem(id) {
+      state.customItems = state.customItems.filter(item => item.id !== id);
+      saveCustomItems();
+      render();
+      showToast("Item deleted.");
+    }
+
+    function exportCustomItems() {
+      const payload = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        app: "topicwise-research-reading-list",
+        customItems: state.customItems
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "research-reading-list-custom-items.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function importCustomItems(file) {
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const payload = JSON.parse(text);
+        const incoming = Array.isArray(payload) ? payload : payload.customItems;
+        if (!Array.isArray(incoming)) throw new Error("No customItems array found");
+
+        const validTopicTitles = new Set(BASE_DATA.map(t => t.title));
+        const normalized = incoming
+          .filter(item => item && item.title && validTopicTitles.has(item.topicTitle))
+          .map(item => ({
+            id: item.id || "custom-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
+            topicTitle: item.topicTitle,
+            kind: item.kind || "Other",
+            title: item.title,
+            url: item.url || "#",
+            note: item.note || "",
+            createdAt: item.createdAt || new Date().toISOString()
+          }));
+
+        const existingIds = new Set(state.customItems.map(item => item.id));
+        const merged = [...state.customItems];
+        for (const item of normalized) {
+          if (!existingIds.has(item.id)) merged.push(item);
+        }
+        state.customItems = merged;
+        saveCustomItems();
+        render();
+        showToast(`Imported ${normalized.length} item(s).`);
+      } catch (err) {
+        console.error(err);
+        showToast("Could not import this JSON file.");
+      } finally {
+        els.importFile.value = "";
+      }
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => els.toast.classList.remove("show"), 2400);
+    }
+
+    function initShareTargetPrefill() {
+      const params = new URLSearchParams(location.search);
+      const title = params.get("title") || "";
+      const text = params.get("text") || "";
+      const directUrl = params.get("url") || "";
+      const shared = [title, text, directUrl].filter(Boolean).join("\n").trim();
+      if (!shared && !params.has("share-target")) return;
+
+      const url = directUrl || extractUrl(shared);
+      openAddModal({
+        title: title || deriveTitleFromSharedText(text, url),
+        url,
+        note: text || shared,
+        sharedText: shared,
+        kind: "Other"
+      });
+
+      if (history.replaceState) {
+        history.replaceState(null, document.title, location.pathname);
+      }
+      showToast("Shared item received. Choose category and save.");
+    }
+
+    function initServiceWorker() {
+      if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+        navigator.serviceWorker.register("./sw.js").catch(err => console.warn("SW registration failed", err));
+      }
+    }
+
+    document.querySelectorAll("button[data-filter]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("button[data-filter]").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        state.filter = btn.dataset.filter;
+        render();
+      });
+    });
+
+    els.search.addEventListener("input", () => {
+      state.query = els.search.value;
+      render();
+    });
+    els.addItemBtn.addEventListener("click", () => openAddModal());
+    els.exportBtn.addEventListener("click", exportCustomItems);
+    els.importFile.addEventListener("change", event => importCustomItems(event.target.files[0]));
+    els.closeDialogBtn.addEventListener("click", () => els.dialog.close());
+    els.form.addEventListener("submit", addCustomItem);
+    els.clearFormBtn.addEventListener("click", clearForm);
+    els.useSharedTextBtn.addEventListener("click", useSharedText);
+    els.pasteClipboardBtn.addEventListener("click", pasteClipboard);
+
+    populateTopicSelect();
+    render();
+    initServiceWorker();
+    initShareTargetPrefill();
+  </script>
+</body>
+</html>
