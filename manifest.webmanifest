@@ -1,7 +1,7 @@
 {
-  "name": "Topic-wise Research Reading List",
-  "short_name": "Research List",
-  "description": "Browse and add research links by topic, including Android share-target support.",
+  "name": "Share n' Save",
+  "short_name": "Share n' Save",
+  "description": "Save shared research links by category, including Android share-target support.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#111827" />
-  <title>Topic-wise Research Reading List</title>
+  <title>Share n' Save</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <style>
     :root {
@@ -112,6 +112,21 @@
       color: white;
       border-color: #111827;
     }
+    .sync-button {
+      min-width: 104px;
+      justify-content: center;
+    }
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #94a3b8;
+      flex: 0 0 auto;
+    }
+    .sync-button[data-sync-state="synced"] .sync-dot { background: #22c55e; }
+    .sync-button[data-sync-state="syncing"] .sync-dot { background: #eab308; }
+    .sync-button[data-sync-state="error"] .sync-dot { background: #ef4444; }
+    .sync-button[data-sync-state="pending"] .sync-dot { background: #f97316; }
     main {
       max-width: 1220px;
       margin: 0 auto;
@@ -151,14 +166,25 @@
     }
     .stat span { color: var(--muted); font-size: 13px; }
     .toc a {
-      display: block;
+      display: flex;
+      align-items: center;
+      gap: 8px;
       text-decoration: none;
       color: var(--text);
       padding: 9px 10px;
       border-radius: 12px;
+      border-left: 5px solid var(--category-color, #cbd5e1);
+      background: var(--category-soft, transparent);
       font-size: 14px;
     }
     .toc a:hover { background: #f3f4f6; }
+    .category-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--category-color, #cbd5e1);
+      flex: 0 0 auto;
+    }
     .hint {
       margin-top: 14px;
       color: var(--muted);
@@ -167,6 +193,11 @@
       border: 1px dashed var(--border);
       border-radius: 12px;
       background: #fafafa;
+    }
+    .category-toggle {
+      width: 100%;
+      justify-content: center;
+      margin-bottom: 12px;
     }
     .content {
       display: flex;
@@ -180,7 +211,13 @@
       box-shadow: var(--shadow);
       overflow: hidden;
     }
-    details[open] summary {
+    details[data-topic-key] {
+      border-left: 6px solid var(--category-color, var(--border));
+    }
+    details[data-topic-key] > summary {
+      background: linear-gradient(90deg, var(--category-soft, transparent), #fff 58%);
+    }
+    details[open] > summary {
       border-bottom: 1px solid var(--border);
     }
     summary {
@@ -207,6 +244,70 @@
       border-radius: 999px;
       padding: 6px 10px;
     }
+    .topic-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .topic-heading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .topic-heading .category-dot {
+      width: 12px;
+      height: 12px;
+    }
+    .topic-action {
+      border-color: var(--danger);
+      background: var(--danger);
+      color: var(--danger-text);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+    .topic-action:hover { background: #fecaca; }
+    .rename-topic {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+    .kind-delete-select {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      background: white;
+    }
+    .kind-groups {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .kind-group {
+      box-shadow: none;
+      border-radius: 14px;
+      background: #fbfbfc;
+    }
+    .kind-group summary {
+      padding: 12px 14px;
+      background: #fbfbfc;
+    }
+    .kind-group[open] summary {
+      border-bottom: 1px solid var(--border);
+    }
+    .kind-summary {
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .kind-list {
+      padding: 4px;
+      background: white;
+    }
     .items {
       padding: 8px;
     }
@@ -222,6 +323,12 @@
     .item:hover {
       background: #fafafa;
       border-color: var(--border);
+    }
+    .item-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
     .badge {
       display: inline-flex;
@@ -352,6 +459,19 @@
       color: var(--muted);
       font-size: 14px;
     }
+    .sync-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .sync-grid .field:first-child {
+      grid-column: 1 / -1;
+    }
+    .sync-status-text {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
     .modal-actions {
       padding: 16px 22px 22px;
       display: flex;
@@ -395,14 +515,17 @@
       main { grid-template-columns: 1fr; }
       aside { position: static; max-height: none; }
       .item { grid-template-columns: 1fr; gap: 8px; }
+      .item-actions { justify-content: flex-start; }
       .modal-grid { grid-template-columns: 1fr; }
+      .sync-grid { grid-template-columns: 1fr; }
+      .sync-grid .field:first-child { grid-column: auto; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Topic-wise Research Reading List</h1>
-    <p class="subtitle">Browse, search, and extend the list. New entries are saved locally in this browser. To share from X/LinkedIn Android directly into this list, host this folder over HTTPS, install it from Chrome, then use Android’s Share button.</p>
+    <h1>Share n' Save</h1>
+    <p class="subtitle">Browse, search, and extend the list. New entries are saved locally in this browser. To share from X/LinkedIn Android directly into this list, host this folder over HTTPS, install it from Chrome, then use Android's Share button.</p>
   </header>
 
   <section class="toolbar">
@@ -415,9 +538,14 @@
         <button data-filter="other">Others</button>
         <span class="actions">
           <button id="addItemBtn">＋ Add item</button>
+          <button id="syncBtn" class="sync-button" data-sync-state="off" type="button">
+            <span id="syncDot" class="sync-dot"></span>
+            <span id="syncLabel">Sync off</span>
+          </button>
           <button id="exportBtn">Export</button>
           <label class="file-button" for="importFile">Import</label>
           <input id="importFile" type="file" accept="application/json,.json" />
+          <button id="restoreBtn">Restore deleted</button>
         </span>
       </div>
     </div>
@@ -431,9 +559,10 @@
         <div class="stat"><strong id="customStat">0</strong><span>added</span></div>
         <div class="stat"><strong id="visibleStat">0</strong><span>visible</span></div>
       </div>
+      <button id="toggleCategoriesBtn" class="category-toggle">All Categories</button>
       <nav id="toc" class="toc"></nav>
       <div class="hint">
-        Android share target: host this folder as a PWA, open it in Chrome, choose “Add to Home screen” or “Install app”, then share from X/LinkedIn to “Research List”.
+        Android share target: host this folder as a PWA, open it in Chrome, choose "Add to Home screen" or "Install app", then share from X/LinkedIn to "Share n' Save".
       </div>
     </aside>
 
@@ -441,7 +570,7 @@
   </main>
 
   <footer>
-    Local additions are stored in your browser only. Use Export after adding items if you want a backup or want to move the list to another device.
+    Local additions stay in this browser until Sync is configured. Export is still available for manual backup.
   </footer>
 
   <dialog id="itemDialog">
@@ -494,6 +623,44 @@
       <div class="modal-actions">
         <button type="button" id="clearFormBtn">Clear</button>
         <button type="submit" class="primary">Save item</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="syncDialog">
+    <form id="syncForm" method="dialog">
+      <div class="modal-head">
+        <h2>Sync</h2>
+        <button type="button" class="ghost" id="closeSyncDialogBtn">Close</button>
+      </div>
+
+      <div class="modal-body">
+        <p id="syncStatusText" class="sync-status-text">Sync is off.</p>
+        <div class="sync-grid">
+          <div class="field">
+            <label for="syncUrlInput">Supabase project URL</label>
+            <input id="syncUrlInput" placeholder="https://your-project.supabase.co" />
+          </div>
+          <div class="field">
+            <label for="syncAnonKeyInput">Anon public key</label>
+            <input id="syncAnonKeyInput" spellcheck="false" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="syncIdInput">Sync code</label>
+            <input id="syncIdInput" spellcheck="false" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="syncSecretInput">Access key</label>
+            <input id="syncSecretInput" type="password" autocomplete="new-password" />
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" id="disconnectSyncBtn">Disconnect</button>
+        <button type="button" id="generateSyncCodeBtn">Generate code</button>
+        <button type="button" id="syncNowBtn">Sync now</button>
+        <button type="submit" class="primary">Save sync</button>
       </div>
     </form>
   </dialog>
@@ -1505,11 +1672,37 @@
 ];
     const STORAGE_KEY = "topicwiseResearchReadingList.customItems.v1";
     const LAST_TOPIC_KEY = "topicwiseResearchReadingList.lastTopic.v1";
+    const HIDDEN_ITEMS_KEY = "topicwiseResearchReadingList.hiddenItems.v1";
+    const HIDDEN_TOPICS_KEY = "topicwiseResearchReadingList.hiddenTopics.v1";
+    const HIDDEN_KINDS_KEY = "topicwiseResearchReadingList.hiddenKinds.v1";
+    const CATEGORY_META_KEY = "topicwiseResearchReadingList.categoryMeta.v1";
+    const DELETED_CUSTOM_ITEMS_KEY = "topicwiseResearchReadingList.deletedCustomItems.v1";
+    const LOCAL_CHANGED_AT_KEY = "topicwiseResearchReadingList.localChangedAt.v1";
+    const SYNC_SETTINGS_KEY = "shareNSave.syncSettings.v1";
+    const SYNC_CLIENT_ID_KEY = "shareNSave.syncClientId.v1";
+    const SYNC_INTERVAL_MS = 30000;
+    const EPOCH = "1970-01-01T00:00:00.000Z";
+    const CATEGORY_COLORS = [
+      "#0ea5e9", "#14b8a6", "#22c55e", "#84cc16", "#eab308", "#f97316",
+      "#ef4444", "#ec4899", "#a855f7", "#6366f1", "#06b6d4", "#64748b"
+    ];
 
     const state = {
       filter: "all",
       query: "",
-      customItems: loadCustomItems()
+      customItems: loadCustomItems(),
+      deletedCustomItems: loadDeletedCustomItems(),
+      hiddenItems: loadHiddenItems(),
+      hiddenTopics: loadHiddenTopics(),
+      hiddenKinds: loadHiddenKinds(),
+      categoryMeta: loadCategoryMeta(),
+      localChangedAt: loadLocalChangedAt(),
+      syncSettings: loadSyncSettings(),
+      syncClientId: loadSyncClientId(),
+      syncTimer: null,
+      syncInFlight: false,
+      categoriesExpanded: false,
+      openTopics: new Set()
     };
 
     const els = {
@@ -1520,9 +1713,13 @@
       itemStat: document.getElementById("itemStat"),
       customStat: document.getElementById("customStat"),
       visibleStat: document.getElementById("visibleStat"),
+      toggleCategoriesBtn: document.getElementById("toggleCategoriesBtn"),
       addItemBtn: document.getElementById("addItemBtn"),
+      syncBtn: document.getElementById("syncBtn"),
+      syncLabel: document.getElementById("syncLabel"),
       exportBtn: document.getElementById("exportBtn"),
       importFile: document.getElementById("importFile"),
+      restoreBtn: document.getElementById("restoreBtn"),
       dialog: document.getElementById("itemDialog"),
       form: document.getElementById("itemForm"),
       closeDialogBtn: document.getElementById("closeDialogBtn"),
@@ -1535,6 +1732,17 @@
       useSharedTextBtn: document.getElementById("useSharedTextBtn"),
       pasteClipboardBtn: document.getElementById("pasteClipboardBtn"),
       clearFormBtn: document.getElementById("clearFormBtn"),
+      syncDialog: document.getElementById("syncDialog"),
+      syncForm: document.getElementById("syncForm"),
+      closeSyncDialogBtn: document.getElementById("closeSyncDialogBtn"),
+      syncStatusText: document.getElementById("syncStatusText"),
+      syncUrlInput: document.getElementById("syncUrlInput"),
+      syncAnonKeyInput: document.getElementById("syncAnonKeyInput"),
+      syncIdInput: document.getElementById("syncIdInput"),
+      syncSecretInput: document.getElementById("syncSecretInput"),
+      disconnectSyncBtn: document.getElementById("disconnectSyncBtn"),
+      generateSyncCodeBtn: document.getElementById("generateSyncCodeBtn"),
+      syncNowBtn: document.getElementById("syncNowBtn"),
       toast: document.getElementById("toast")
     };
 
@@ -1542,28 +1750,261 @@
       return kind.toLowerCase().replaceAll(" + ", "").replaceAll(" / ", "").replaceAll(" ", "");
     }
 
+    function normalizeKindKey(kind) {
+      return String(kind || "").trim().toLowerCase();
+    }
+
+    function hashString(value) {
+      let hash = 5381;
+      for (let i = 0; i < value.length; i += 1) {
+        hash = ((hash << 5) + hash) + value.charCodeAt(i);
+      }
+      return (hash >>> 0).toString(36);
+    }
+
+    function stableItemId(item, topicTitle) {
+      if (item.id) return item.id;
+      const raw = [topicTitle, item.kind, item.title, item.url].join("||");
+      return "base-" + hashString(raw);
+    }
+
     function loadCustomItems() {
       try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        if (!Array.isArray(data)) return [];
+        let updated = false;
+        const normalized = data.map(item => {
+          if (!item) return item;
+          if (!item.id) {
+            const raw = [item.topicTitle, item.kind, item.title, item.url, item.note, item.createdAt].join("||");
+            item.id = "custom-legacy-" + hashString(raw);
+            updated = true;
+          }
+          if (!item.updatedAt) {
+            item.updatedAt = item.createdAt || new Date().toISOString();
+            updated = true;
+          }
+          return item;
+        });
+        if (updated) localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+        return normalized;
       } catch (err) {
         console.warn("Could not load custom items", err);
         return [];
       }
     }
 
+    function loadJsonArray(key) {
+      try {
+        const data = JSON.parse(localStorage.getItem(key) || "[]");
+        return Array.isArray(data) ? data : [];
+      } catch (err) {
+        console.warn("Could not load data", err);
+        return [];
+      }
+    }
+
+    function loadHiddenItems() {
+      return new Set(loadJsonArray(HIDDEN_ITEMS_KEY));
+    }
+
+    function loadHiddenTopics() {
+      return new Set(loadJsonArray(HIDDEN_TOPICS_KEY));
+    }
+
+    function loadHiddenKinds() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(HIDDEN_KINDS_KEY) || "{}");
+        if (!raw || typeof raw !== "object") return {};
+        const normalized = {};
+        for (const [topicTitle, kinds] of Object.entries(raw)) {
+          if (Array.isArray(kinds)) {
+            const uniqueKinds = [...new Set(kinds.map(normalizeKindKey).filter(Boolean))];
+            if (uniqueKinds.length) normalized[topicTitle] = uniqueKinds;
+          }
+        }
+        return normalized;
+      } catch (err) {
+        console.warn("Could not load hidden kinds", err);
+        return {};
+      }
+    }
+
+    function loadJsonObject(key) {
+      try {
+        const data = JSON.parse(localStorage.getItem(key) || "{}");
+        return data && typeof data === "object" && !Array.isArray(data) ? data : {};
+      } catch (err) {
+        console.warn("Could not load object", err);
+        return {};
+      }
+    }
+
+    function loadDeletedCustomItems() {
+      const raw = loadJsonObject(DELETED_CUSTOM_ITEMS_KEY);
+      const normalized = {};
+      for (const [id, deletedAt] of Object.entries(raw)) {
+        if (id && typeof deletedAt === "string") normalized[id] = deletedAt;
+      }
+      return normalized;
+    }
+
+    function loadLocalChangedAt() {
+      const stored = localStorage.getItem(LOCAL_CHANGED_AT_KEY);
+      if (stored) return stored;
+      const initial = new Date().toISOString();
+      localStorage.setItem(LOCAL_CHANGED_AT_KEY, initial);
+      return initial;
+    }
+
+    function loadSyncClientId() {
+      let clientId = localStorage.getItem(SYNC_CLIENT_ID_KEY);
+      if (!clientId) {
+        clientId = "client-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+        localStorage.setItem(SYNC_CLIENT_ID_KEY, clientId);
+      }
+      return clientId;
+    }
+
+    function loadSyncSettings() {
+      const raw = loadJsonObject(SYNC_SETTINGS_KEY);
+      return {
+        enabled: !!raw.enabled,
+        provider: "supabase",
+        url: typeof raw.url === "string" ? raw.url : "",
+        anonKey: typeof raw.anonKey === "string" ? raw.anonKey : "",
+        syncId: typeof raw.syncId === "string" ? raw.syncId : "",
+        accessKey: typeof raw.accessKey === "string" ? raw.accessKey : "",
+        lastRemoteUpdatedAt: typeof raw.lastRemoteUpdatedAt === "string" ? raw.lastRemoteUpdatedAt : "",
+        lastSyncAt: typeof raw.lastSyncAt === "string" ? raw.lastSyncAt : ""
+      };
+    }
+
+    function randomCategoryColor() {
+      return CATEGORY_COLORS[Math.floor(Math.random() * CATEGORY_COLORS.length)];
+    }
+
+    function isKnownCategoryColor(color) {
+      return /^#[0-9a-f]{6}$/i.test(String(color || ""));
+    }
+
+    function loadCategoryMeta() {
+      let raw = {};
+      try {
+        raw = JSON.parse(localStorage.getItem(CATEGORY_META_KEY) || "{}");
+      } catch (err) {
+        console.warn("Could not load category metadata", err);
+      }
+
+      const meta = {};
+      let changed = false;
+      BASE_DATA.forEach(topic => {
+        const existing = raw && typeof raw === "object" ? raw[topic.title] : null;
+        const name = existing && typeof existing.name === "string" && existing.name.trim()
+          ? existing.name.trim()
+          : topic.title;
+        const color = existing && isKnownCategoryColor(existing.color)
+          ? existing.color
+          : randomCategoryColor();
+        const updatedAt = existing && typeof existing.updatedAt === "string" ? existing.updatedAt : EPOCH;
+        meta[topic.title] = { name, color, updatedAt };
+        if (!existing || existing.name !== name || existing.color !== color || existing.updatedAt !== updatedAt) changed = true;
+      });
+
+      if (changed) {
+        localStorage.setItem(CATEGORY_META_KEY, JSON.stringify(meta));
+      }
+      return meta;
+    }
+
     function saveCustomItems() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state.customItems));
+    }
+
+    function saveHiddenItems() {
+      localStorage.setItem(HIDDEN_ITEMS_KEY, JSON.stringify([...state.hiddenItems]));
+    }
+
+    function saveHiddenTopics() {
+      localStorage.setItem(HIDDEN_TOPICS_KEY, JSON.stringify([...state.hiddenTopics]));
+    }
+
+    function saveHiddenKinds() {
+      localStorage.setItem(HIDDEN_KINDS_KEY, JSON.stringify(state.hiddenKinds));
+    }
+
+    function saveCategoryMeta() {
+      localStorage.setItem(CATEGORY_META_KEY, JSON.stringify(state.categoryMeta));
+    }
+
+    function saveDeletedCustomItems() {
+      localStorage.setItem(DELETED_CUSTOM_ITEMS_KEY, JSON.stringify(state.deletedCustomItems));
+    }
+
+    function saveLocalChangedAt() {
+      localStorage.setItem(LOCAL_CHANGED_AT_KEY, state.localChangedAt);
+    }
+
+    function saveSyncSettings() {
+      localStorage.setItem(SYNC_SETTINGS_KEY, JSON.stringify(state.syncSettings));
+    }
+
+    function markLocalChanged() {
+      state.localChangedAt = new Date().toISOString();
+      saveLocalChangedAt();
+      scheduleSync();
+    }
+
+    function getCategoryMeta(topicTitle) {
+      if (!state.categoryMeta[topicTitle]) {
+        state.categoryMeta[topicTitle] = { name: topicTitle, color: randomCategoryColor(), updatedAt: EPOCH };
+        saveCategoryMeta();
+      }
+      return state.categoryMeta[topicTitle];
+    }
+
+    function categoryDisplayName(topicTitle) {
+      return getCategoryMeta(topicTitle).name || topicTitle;
+    }
+
+    function categoryColor(topicTitle) {
+      return getCategoryMeta(topicTitle).color || "#64748b";
+    }
+
+    function hexToRgba(hex, alpha) {
+      const match = String(hex || "").match(/^#?([0-9a-f]{6})$/i);
+      if (!match) return `rgba(100, 116, 139, ${alpha})`;
+      const value = match[1];
+      const r = parseInt(value.slice(0, 2), 16);
+      const g = parseInt(value.slice(2, 4), 16);
+      const b = parseInt(value.slice(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function categoryStyle(topicTitle) {
+      const color = categoryColor(topicTitle);
+      return `--category-color: ${color}; --category-soft: ${hexToRgba(color, 0.12)};`;
     }
 
     function mergedData() {
       const copy = BASE_DATA.map(topic => ({
         title: topic.title,
-        items: topic.items.map(item => ({ ...item, custom: false }))
+        items: topic.items.map(item => ({
+          ...item,
+          custom: false,
+          id: stableItemId(item, topic.title)
+        }))
       }));
       const byTitle = new Map(copy.map(topic => [topic.title, topic]));
       for (const item of state.customItems) {
         const topic = byTitle.get(item.topicTitle);
-        if (topic) topic.items.push({ ...item, custom: true });
+        if (topic) {
+          topic.items.push({
+            ...item,
+            custom: true,
+            id: stableItemId(item, item.topicTitle)
+          });
+        }
       }
       return copy;
     }
@@ -1583,39 +2024,99 @@
       return true;
     }
 
+    function kindGroupKey(kind) {
+      const k = normalizeKindKey(kind);
+      if (k.includes("paper")) return "paper";
+      if (k.includes("blog")) return "blog";
+      return "other";
+    }
+
+    function kindGroupLabel(group) {
+      return group === "paper" ? "Papers" : group === "blog" ? "Blogs" : "Others";
+    }
+
     function itemMatches(item, topicTitle) {
       const q = state.query.trim().toLowerCase();
-      const haystack = [item.kind, item.title, item.url, item.note, topicTitle].join(" ").toLowerCase();
+      const haystack = [item.kind, item.title, item.url, item.note, topicTitle, categoryDisplayName(topicTitle)].join(" ").toLowerCase();
       return (!q || haystack.includes(q)) && kindMatches(item.kind, state.filter);
+    }
+
+    function isTopicHidden(topicTitle) {
+      return state.hiddenTopics.has(topicTitle);
+    }
+
+    function isKindHidden(topicTitle, kind) {
+      const hidden = state.hiddenKinds[topicTitle] || [];
+      return hidden.includes(normalizeKindKey(kind));
+    }
+
+    function isItemHidden(item, topicTitle) {
+      return isTopicHidden(topicTitle) || isKindHidden(topicTitle, item.kind) || state.hiddenItems.has(item.id);
+    }
+
+    function topicKey(title) {
+      return encodeURIComponent(title);
+    }
+
+    function updateCategoryToggleLabel() {
+      els.toggleCategoriesBtn.textContent = state.categoriesExpanded ? "Collapse Categories" : "All Categories";
+    }
+
+    function syncOpenTopicsFromDom() {
+      const open = new Set();
+      document.querySelectorAll("details[data-topic-key]").forEach(details => {
+        if (details.open) open.add(details.dataset.topicKey);
+      });
+      state.openTopics = open;
     }
 
     function render() {
       const data = mergedData();
-      els.topicStat.textContent = data.length;
-      const totalItems = data.reduce((acc, topic) => acc + topic.items.length, 0);
+      const activeTopics = data.filter(topic => !isTopicHidden(topic.title));
+      const topicsWithItems = activeTopics.filter(topic =>
+        topic.items.some(item => !isItemHidden(item, topic.title))
+      );
+
+      els.topicStat.textContent = topicsWithItems.length;
+      const totalItems = topicsWithItems.reduce((acc, topic) =>
+        acc + topic.items.filter(item => !isItemHidden(item, topic.title)).length, 0
+      );
       els.itemStat.textContent = totalItems;
       els.customStat.textContent = state.customItems.length;
 
-      els.toc.innerHTML = data.map((topic, idx) =>
-        `<a href="#topic-${idx}">${escapeHtml(topic.title)}</a>`
-      ).join("");
-
       let visibleCount = 0;
+      const tocLinks = [];
 
-      els.content.innerHTML = data.map((topic, idx) => {
-        const visibleItems = topic.items.filter(item => itemMatches(item, topic.title));
-        visibleCount += visibleItems.length;
+      els.content.innerHTML = topicsWithItems.map((topic, idx) => {
+        const availableItems = topic.items.filter(item => !isItemHidden(item, topic.title));
+        const visibleItems = availableItems.filter(item => itemMatches(item, topic.title));
         if (!visibleItems.length) return "";
 
-        const itemsHtml = visibleItems.map(item => {
+        visibleCount += visibleItems.length;
+        const topicId = `topic-${idx}`;
+        const displayTitle = categoryDisplayName(topic.title);
+        const topicStyle = categoryStyle(topic.title);
+        tocLinks.push(`<a href="#${topicId}" style="${topicStyle}"><span class="category-dot"></span><span>${escapeHtml(displayTitle)}</span></a>`);
+
+        const topicKinds = [...new Set(availableItems.map(item => item.kind))]
+          .filter(kind => !isKindHidden(topic.title, kind));
+        const kindOptions = topicKinds.map(kind =>
+          `<option value="${escapeHtml(kind)}">${escapeHtml(kind)}</option>`
+        ).join("");
+        const kindSelect = topicKinds.length
+          ? `<select class="kind-delete-select" data-kind-delete-topic="${escapeHtml(topic.title)}">
+              <option value="">Delete subcategory...</option>
+              ${kindOptions}
+            </select>`
+          : "";
+
+        const renderItem = item => {
           const badgeClass = normalizeKindClass(item.kind);
           const isRealLink = item.url && item.url !== "#";
           const titleHtml = isRealLink
             ? `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>`
             : `<strong>${escapeHtml(item.title)}</strong>`;
-          const deleteBtn = item.custom
-            ? `<button class="delete-btn" data-delete-id="${escapeHtml(item.id)}">Delete</button>`
-            : "";
+          const deleteBtn = `<button class="delete-btn" data-delete-id="${escapeHtml(item.id)}" data-delete-custom="${item.custom}" data-delete-title="${escapeHtml(item.title)}" data-delete-topic="${escapeHtml(topic.title)}" data-delete-kind="${escapeHtml(item.kind)}">Delete</button>`;
           const customMark = item.custom ? `<span class="custom-mark">Added</span>` : "";
           return `<article class="item">
             <div><span class="badge ${badgeClass}">${escapeHtml(item.kind)}</span></div>
@@ -1623,29 +2124,113 @@
               ${titleHtml}${customMark}
               <div class="note">${escapeHtml(item.note || "")}</div>
             </div>
-            <div>${deleteBtn}</div>
+            <div class="item-actions">${deleteBtn}</div>
           </article>`;
+        };
+
+        const groupedItems = { paper: [], blog: [], other: [] };
+        visibleItems.forEach(item => {
+          groupedItems[kindGroupKey(item.kind)].push(item);
+        });
+        const itemsHtml = ["paper", "blog", "other"].map(group => {
+          const groupItems = groupedItems[group];
+          if (!groupItems.length) return "";
+          return `<details class="kind-group" open>
+            <summary>
+              <span class="kind-summary">${kindGroupLabel(group)}</span>
+              <span class="topic-count">${groupItems.length}</span>
+            </summary>
+            <div class="kind-list">${groupItems.map(renderItem).join("")}</div>
+          </details>`;
         }).join("");
 
-        return `<details id="topic-${idx}" open>
+        const key = topicKey(topic.title);
+        const shouldOpen = state.categoriesExpanded || state.openTopics.has(key);
+        return `<details id="${topicId}" data-topic-key="${key}" style="${topicStyle}" ${shouldOpen ? "open" : ""}>
           <summary>
-            <span class="topic-title">${escapeHtml(topic.title)}</span>
-            <span class="topic-count">${visibleItems.length} / ${topic.items.length} items</span>
+            <span class="topic-heading">
+              <span class="category-dot"></span>
+              <span class="topic-title">${escapeHtml(displayTitle)}</span>
+            </span>
+            <span class="topic-meta">
+              <span class="topic-count">${visibleItems.length} / ${availableItems.length} items</span>
+              ${kindSelect}
+              <button class="rename-topic" data-edit-topic="${escapeHtml(topic.title)}">Rename</button>
+              <button class="topic-action" data-delete-topic="${escapeHtml(topic.title)}">Delete category</button>
+            </span>
           </summary>
-          <div class="items">${itemsHtml}</div>
+          <div class="kind-groups">${itemsHtml}</div>
         </details>`;
       }).join("") || `<div class="empty" style="display:block;">No matching items. Try a broader search or switch filters.</div>`;
 
+      els.toc.innerHTML = tocLinks.join("");
       els.visibleStat.textContent = visibleCount;
 
       document.querySelectorAll("[data-delete-id]").forEach(button => {
-        button.addEventListener("click", () => deleteCustomItem(button.dataset.deleteId));
+        button.addEventListener("click", event => {
+          event.preventDefault();
+          event.stopPropagation();
+          const isCustom = String(button.dataset.deleteCustom) === "true";
+          deleteItem(button.dataset.deleteId, button.dataset.deleteTitle, isCustom);
+        });
       });
+
+      document.querySelectorAll("[data-delete-topic]").forEach(button => {
+        button.addEventListener("click", event => {
+          event.preventDefault();
+          event.stopPropagation();
+          deleteTopic(button.dataset.deleteTopic);
+        });
+      });
+
+      document.querySelectorAll("[data-edit-topic]").forEach(button => {
+        button.addEventListener("click", event => {
+          event.preventDefault();
+          event.stopPropagation();
+          renameTopic(button.dataset.editTopic);
+        });
+      });
+
+      document.querySelectorAll("[data-kind-delete-topic]").forEach(select => {
+        select.addEventListener("click", event => {
+          event.stopPropagation();
+        });
+        select.addEventListener("change", event => {
+          event.stopPropagation();
+          const kind = select.value;
+          if (!kind) return;
+          deleteSubcategory(select.dataset.kindDeleteTopic, kind);
+          select.value = "";
+        });
+      });
+
+      document.querySelectorAll("details[data-topic-key]").forEach(details => {
+        details.addEventListener("toggle", () => {
+          if (state.categoriesExpanded) {
+            state.categoriesExpanded = false;
+            syncOpenTopicsFromDom();
+          } else if (details.open) {
+            state.openTopics.add(details.dataset.topicKey);
+          } else {
+            state.openTopics.delete(details.dataset.topicKey);
+          }
+          updateCategoryToggleLabel();
+        });
+      });
+
+      updateCategoryToggleLabel();
     }
 
     function populateTopicSelect() {
-      els.topicSelect.innerHTML = BASE_DATA.map(topic =>
-        `<option value="${escapeHtml(topic.title)}">${escapeHtml(topic.title)}</option>`
+      const availableTopics = BASE_DATA.filter(topic => !isTopicHidden(topic.title));
+      if (!availableTopics.length) {
+        els.topicSelect.innerHTML = `<option value="">No categories available</option>`;
+        els.topicSelect.disabled = true;
+        return;
+      }
+      els.topicSelect.disabled = false;
+      els.topicSelect.innerHTML = availableTopics.map(topic =>
+        `<option value="${escapeHtml(topic.title)}" style="background: ${hexToRgba(categoryColor(topic.title), 0.16)};">${escapeHtml(categoryDisplayName(topic.title))}</option>`
       ).join("");
     }
 
@@ -1673,8 +2258,18 @@
 
     function openAddModal(prefill = {}) {
       populateTopicSelect();
+      if (els.topicSelect.disabled) {
+        showToast("No categories available. Restore deleted categories first.");
+        return;
+      }
+      const availableValues = [...els.topicSelect.options].map(option => option.value);
       const lastTopic = localStorage.getItem(LAST_TOPIC_KEY);
-      els.topicSelect.value = prefill.topicTitle || lastTopic || BASE_DATA[0].title;
+      const selectedTopic = (prefill.topicTitle && availableValues.includes(prefill.topicTitle))
+        ? prefill.topicTitle
+        : (lastTopic && availableValues.includes(lastTopic))
+          ? lastTopic
+          : availableValues[0];
+      els.topicSelect.value = selectedTopic;
       els.kindSelect.value = prefill.kind || "Other";
       els.titleInput.value = prefill.title || "";
       els.urlInput.value = prefill.url || "";
@@ -1713,6 +2308,31 @@
       }
     }
 
+    async function copyTextToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch (err) {
+          // Fallback below.
+        }
+      }
+      try {
+        const area = document.createElement("textarea");
+        area.value = text;
+        area.setAttribute("readonly", "");
+        area.style.position = "fixed";
+        area.style.top = "-9999px";
+        document.body.appendChild(area);
+        area.select();
+        const ok = document.execCommand("copy");
+        area.remove();
+        return ok;
+      } catch (err) {
+        return false;
+      }
+    }
+
     function addCustomItem(event) {
       event.preventDefault();
       const topicTitle = els.topicSelect.value;
@@ -1729,40 +2349,236 @@
       const item = {
         id: "custom-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
         topicTitle, kind, title, url, note,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
 
       state.customItems.push(item);
       saveCustomItems();
       localStorage.setItem(LAST_TOPIC_KEY, topicTitle);
+      markLocalChanged();
       els.dialog.close();
       render();
       showToast("Item added.");
     }
 
-    function deleteCustomItem(id) {
-      state.customItems = state.customItems.filter(item => item.id !== id);
-      saveCustomItems();
+    function deleteItem(id, title, isCustom) {
+      const message = isCustom
+        ? `Delete "${title}"? This will remove it from your added list.`
+        : `Delete "${title}"? This will hide it on this device.`;
+      if (!window.confirm(message)) return;
+
+      if (isCustom) {
+        state.deletedCustomItems[id] = new Date().toISOString();
+        state.customItems = state.customItems.filter(item => item.id !== id);
+        saveDeletedCustomItems();
+        saveCustomItems();
+      } else {
+        state.hiddenItems.add(id);
+        saveHiddenItems();
+      }
+      markLocalChanged();
       render();
       showToast("Item deleted.");
     }
 
-    function exportCustomItems() {
-      const payload = {
-        version: 1,
-        exportedAt: new Date().toISOString(),
-        app: "topicwise-research-reading-list",
-        customItems: state.customItems
+    function deleteTopic(topicTitle) {
+      const displayTitle = categoryDisplayName(topicTitle);
+      if (!window.confirm(`Delete category "${displayTitle}"? This hides the whole category on this device.`)) return;
+      state.hiddenTopics.add(topicTitle);
+      saveHiddenTopics();
+      markLocalChanged();
+      render();
+      showToast("Category deleted.");
+    }
+
+    function renameTopic(topicTitle) {
+      const currentName = categoryDisplayName(topicTitle);
+      const nextName = window.prompt("Rename category", currentName);
+      if (nextName === null) return;
+      const name = nextName.trim();
+      if (!name) {
+        showToast("Category name cannot be empty.");
+        return;
+      }
+      state.categoryMeta[topicTitle] = {
+        ...getCategoryMeta(topicTitle),
+        name,
+        updatedAt: new Date().toISOString()
       };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      saveCategoryMeta();
+      markLocalChanged();
+      populateTopicSelect();
+      render();
+      showToast("Category renamed.");
+    }
+
+    function deleteSubcategory(topicTitle, kind) {
+      if (!window.confirm(`Delete subcategory "${kind}" in "${categoryDisplayName(topicTitle)}"? This hides all items in that subcategory.`)) return;
+      const key = normalizeKindKey(kind);
+      if (!key) return;
+      const existing = state.hiddenKinds[topicTitle] || [];
+      if (!existing.includes(key)) {
+        state.hiddenKinds[topicTitle] = [...existing, key];
+        saveHiddenKinds();
+      }
+      markLocalChanged();
+      render();
+      showToast("Subcategory deleted.");
+    }
+
+    function restoreDeleted() {
+      const hasHidden = state.hiddenItems.size || state.hiddenTopics.size || Object.keys(state.hiddenKinds).length;
+      if (!hasHidden) {
+        showToast("Nothing to restore.");
+        return;
+      }
+      if (!window.confirm("Restore all deleted items, categories, and subcategories?")) return;
+      state.hiddenItems = new Set();
+      state.hiddenTopics = new Set();
+      state.hiddenKinds = {};
+      saveHiddenItems();
+      saveHiddenTopics();
+      saveHiddenKinds();
+      markLocalChanged();
+      render();
+      showToast("Deleted entries restored.");
+    }
+
+    function buildVisibleTopics() {
+      const data = mergedData();
+      const visibleTopics = [];
+      for (const topic of data) {
+        if (isTopicHidden(topic.title)) continue;
+        const availableItems = topic.items.filter(item => !isItemHidden(item, topic.title));
+        const visibleItems = availableItems.filter(item => itemMatches(item, topic.title));
+        if (!visibleItems.length) continue;
+
+        const meta = getCategoryMeta(topic.title);
+        visibleTopics.push({
+          title: meta.name,
+          originalTitle: topic.title,
+          color: meta.color,
+          items: visibleItems.map(item => ({
+            kind: item.kind,
+            title: item.title,
+            url: item.url,
+            note: item.note || "",
+            custom: !!item.custom
+          }))
+        });
+      }
+      return visibleTopics;
+    }
+
+    function exportCustomItems() {
+      const visibleTopics = buildVisibleTopics();
+      const payload = {
+        version: 4,
+        exportedAt: new Date().toISOString(),
+        lastModified: state.localChangedAt,
+        clientId: state.syncClientId,
+        app: "share-n-save",
+        view: {
+          filter: state.filter,
+          query: state.query
+        },
+        customItems: state.customItems,
+        deletedCustomItems: state.deletedCustomItems,
+        hiddenItems: [...state.hiddenItems],
+        hiddenTopics: [...state.hiddenTopics],
+        hiddenKinds: state.hiddenKinds,
+        categoryMeta: state.categoryMeta,
+        topics: visibleTopics
+      };
+      const json = JSON.stringify(payload, null, 2);
+      const filename = "share-n-save-export.json";
+      const blob = new Blob([json], { type: "application/json" });
       const url = URL.createObjectURL(blob);
+
+      if (location.protocol === "file:") {
+        const popup = window.open(url, "_blank");
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        if (popup) {
+          showToast("Export opened in a new tab. Use Save As to keep it.");
+          return;
+        }
+
+        copyTextToClipboard(json).then(copied => {
+          if (copied) {
+            showToast("Export copied to clipboard. Paste into a file.");
+          } else {
+            showToast("Export blocked. Please open with a hosted HTTPS version.");
+          }
+        });
+        return;
+      }
+
       const a = document.createElement("a");
       a.href = url;
-      a.download = "research-reading-list-custom-items.json";
+      a.download = filename;
+      a.rel = "noopener";
       document.body.appendChild(a);
       a.click();
       a.remove();
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function applyImportedSettings(payload) {
+      if (!payload || typeof payload !== "object" || Array.isArray(payload)) return;
+
+      if (payload.categoryMeta && typeof payload.categoryMeta === "object") {
+        BASE_DATA.forEach(topic => {
+          const incoming = payload.categoryMeta[topic.title];
+          if (!incoming || typeof incoming !== "object") return;
+          const current = getCategoryMeta(topic.title);
+          state.categoryMeta[topic.title] = {
+            name: typeof incoming.name === "string" && incoming.name.trim() ? incoming.name.trim() : current.name,
+            color: isKnownCategoryColor(incoming.color) ? incoming.color : current.color,
+            updatedAt: typeof incoming.updatedAt === "string" ? incoming.updatedAt : current.updatedAt || EPOCH
+          };
+        });
+        saveCategoryMeta();
+      }
+
+      if (payload.deletedCustomItems && typeof payload.deletedCustomItems === "object") {
+        for (const [id, deletedAt] of Object.entries(payload.deletedCustomItems)) {
+          if (!id || typeof deletedAt !== "string") continue;
+          const current = state.deletedCustomItems[id];
+          if (!current || new Date(deletedAt) > new Date(current)) {
+            state.deletedCustomItems[id] = deletedAt;
+          }
+        }
+        state.customItems = state.customItems.filter(item => {
+          const deletedAt = state.deletedCustomItems[item.id];
+          return !deletedAt || new Date(item.updatedAt || item.createdAt || EPOCH) > new Date(deletedAt);
+        });
+        saveDeletedCustomItems();
+      }
+
+      if (Array.isArray(payload.hiddenItems)) {
+        payload.hiddenItems.forEach(id => state.hiddenItems.add(id));
+      }
+      if (Array.isArray(payload.hiddenTopics)) {
+        payload.hiddenTopics.forEach(topic => state.hiddenTopics.add(topic));
+      }
+      if (payload.hiddenKinds && typeof payload.hiddenKinds === "object") {
+        for (const [topicTitle, kinds] of Object.entries(payload.hiddenKinds)) {
+          if (!Array.isArray(kinds)) continue;
+          const normalizedKinds = kinds.map(normalizeKindKey).filter(Boolean);
+          const existingKinds = state.hiddenKinds[topicTitle] || [];
+          const mergedKinds = [...new Set([...existingKinds, ...normalizedKinds])];
+          if (mergedKinds.length) state.hiddenKinds[topicTitle] = mergedKinds;
+        }
+      }
+    }
+
+    function topicTitleFromImport(topic) {
+      if (!topic || typeof topic !== "object") return "";
+      if (BASE_DATA.some(base => base.title === topic.originalTitle)) return topic.originalTitle;
+      if (BASE_DATA.some(base => base.title === topic.title)) return topic.title;
+      const match = BASE_DATA.find(base => categoryDisplayName(base.title) === topic.title);
+      return match ? match.title : "";
     }
 
     async function importCustomItems(file) {
@@ -1770,6 +2586,120 @@
       try {
         const text = await file.text();
         const payload = JSON.parse(text);
+        const payloadIsTopicArray = Array.isArray(payload)
+          && payload.every(topic => topic && typeof topic.title === "string" && Array.isArray(topic.items));
+        const stateItems = payloadIsTopicArray ? null : (Array.isArray(payload) ? payload : payload.customItems);
+
+        if (Array.isArray(stateItems)) {
+          const validTopicTitles = new Set(BASE_DATA.map(t => t.title));
+          const normalized = stateItems
+            .filter(item => item && item.title && validTopicTitles.has(item.topicTitle))
+            .map(item => ({
+              id: item.id || "custom-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
+              topicTitle: item.topicTitle,
+              kind: item.kind || "Other",
+              title: item.title,
+              url: item.url || "#",
+              note: item.note || "",
+              createdAt: item.createdAt || new Date().toISOString(),
+              updatedAt: item.updatedAt || item.createdAt || new Date().toISOString()
+            }));
+
+          const existingIds = new Set(state.customItems.map(item => item.id));
+          let addedCount = 0;
+          for (const item of normalized) {
+            if (!existingIds.has(item.id)) {
+              state.customItems.push(item);
+              existingIds.add(item.id);
+              addedCount += 1;
+            }
+          }
+
+          applyImportedSettings(payload);
+          saveCustomItems();
+          saveDeletedCustomItems();
+          saveHiddenItems();
+          saveHiddenTopics();
+          saveHiddenKinds();
+          markLocalChanged();
+          populateTopicSelect();
+          render();
+          showToast(`Imported ${addedCount} new item(s).`);
+          return;
+        }
+
+        const topicsPayload = payload && Array.isArray(payload.topics) ? payload.topics : null;
+        const topicsArray = Array.isArray(payload) ? payload : topicsPayload;
+        const isBaseDataArray = Array.isArray(topicsArray)
+          && topicsArray.every(topic => topic && typeof topic.title === "string" && Array.isArray(topic.items));
+
+        if (isBaseDataArray) {
+          const confirmRestore = window.confirm("This file looks like a full category list. Restore categories and merge any new items?");
+          if (!confirmRestore) return;
+
+          state.hiddenItems = new Set();
+          state.hiddenTopics = new Set();
+          state.hiddenKinds = {};
+          saveHiddenItems();
+          saveHiddenTopics();
+          saveHiddenKinds();
+
+          const baseIds = new Set();
+          BASE_DATA.forEach(topic => {
+            topic.items.forEach(item => {
+              baseIds.add(stableItemId({ kind: item.kind, title: item.title, url: item.url }, topic.title));
+            });
+          });
+
+          const dedupeIds = new Set(baseIds);
+          const incomingItems = [];
+
+          topicsArray.forEach(topic => {
+            const importedTopicTitle = topicTitleFromImport(topic);
+            if (!importedTopicTitle || !Array.isArray(topic.items)) return;
+            topic.items.forEach(item => {
+              if (!item || !item.title) return;
+              const normalized = {
+                id: item.id || "custom-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
+                topicTitle: importedTopicTitle,
+                kind: item.kind || "Other",
+                title: item.title,
+                url: item.url || "#",
+                note: item.note || "",
+                createdAt: item.createdAt || new Date().toISOString(),
+                updatedAt: item.updatedAt || item.createdAt || new Date().toISOString()
+              };
+              const stableKey = stableItemId({ kind: normalized.kind, title: normalized.title, url: normalized.url }, importedTopicTitle);
+              if (dedupeIds.has(stableKey)) return;
+              dedupeIds.add(stableKey);
+              incomingItems.push(normalized);
+            });
+          });
+
+          const existingIds = new Set(state.customItems.map(item => item.id));
+          let addedCount = 0;
+          for (const item of incomingItems) {
+            if (!existingIds.has(item.id)) {
+              state.customItems.push(item);
+              existingIds.add(item.id);
+              addedCount += 1;
+            }
+          }
+
+          saveCustomItems();
+          applyImportedSettings(payload);
+          saveCategoryMeta();
+          saveDeletedCustomItems();
+          saveHiddenItems();
+          saveHiddenTopics();
+          saveHiddenKinds();
+          markLocalChanged();
+          populateTopicSelect();
+          render();
+          showToast(addedCount ? `Restored categories. Imported ${addedCount} extra item(s).` : "Restored categories.");
+          return;
+        }
+
         const incoming = Array.isArray(payload) ? payload : payload.customItems;
         if (!Array.isArray(incoming)) throw new Error("No customItems array found");
 
@@ -1783,7 +2713,8 @@
             title: item.title,
             url: item.url || "#",
             note: item.note || "",
-            createdAt: item.createdAt || new Date().toISOString()
+            createdAt: item.createdAt || new Date().toISOString(),
+            updatedAt: item.updatedAt || item.createdAt || new Date().toISOString()
           }));
 
         const existingIds = new Set(state.customItems.map(item => item.id));
@@ -1792,7 +2723,14 @@
           if (!existingIds.has(item.id)) merged.push(item);
         }
         state.customItems = merged;
+        applyImportedSettings(payload);
         saveCustomItems();
+        saveDeletedCustomItems();
+        saveHiddenItems();
+        saveHiddenTopics();
+        saveHiddenKinds();
+        markLocalChanged();
+        populateTopicSelect();
         render();
         showToast(`Imported ${normalized.length} item(s).`);
       } catch (err) {
@@ -1801,6 +2739,401 @@
       } finally {
         els.importFile.value = "";
       }
+    }
+
+    function parseTime(value) {
+      const time = Date.parse(value || "");
+      return Number.isFinite(time) ? time : 0;
+    }
+
+    function cloneData(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function normalizeCustomItem(item) {
+      const now = new Date().toISOString();
+      return {
+        id: item.id || "custom-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8),
+        topicTitle: item.topicTitle,
+        kind: item.kind || "Other",
+        title: item.title,
+        url: item.url || "#",
+        note: item.note || "",
+        createdAt: item.createdAt || now,
+        updatedAt: item.updatedAt || item.createdAt || now
+      };
+    }
+
+    function buildSyncPayload() {
+      return {
+        version: 4,
+        app: "share-n-save",
+        clientId: state.syncClientId,
+        lastModified: state.localChangedAt,
+        customItems: state.customItems.map(item => normalizeCustomItem(item)),
+        deletedCustomItems: cloneData(state.deletedCustomItems),
+        hiddenItems: [...state.hiddenItems],
+        hiddenTopics: [...state.hiddenTopics],
+        hiddenKinds: cloneData(state.hiddenKinds),
+        categoryMeta: cloneData(state.categoryMeta)
+      };
+    }
+
+    function mergeDeletedCustomItems(localDeleted = {}, remoteDeleted = {}) {
+      const merged = {};
+      [localDeleted, remoteDeleted].forEach(source => {
+        if (!source || typeof source !== "object") return;
+        for (const [id, deletedAt] of Object.entries(source)) {
+          if (!id || typeof deletedAt !== "string") continue;
+          if (!merged[id] || parseTime(deletedAt) > parseTime(merged[id])) {
+            merged[id] = deletedAt;
+          }
+        }
+      });
+      return merged;
+    }
+
+    function mergeCustomItems(localItems = [], remoteItems = [], deletedItems = {}) {
+      const validTopicTitles = new Set(BASE_DATA.map(topic => topic.title));
+      const byId = new Map();
+      [...localItems, ...remoteItems].forEach(item => {
+        if (!item || !item.title || !validTopicTitles.has(item.topicTitle)) return;
+        const normalized = normalizeCustomItem(item);
+        const current = byId.get(normalized.id);
+        if (!current || parseTime(normalized.updatedAt) >= parseTime(current.updatedAt)) {
+          byId.set(normalized.id, normalized);
+        }
+      });
+
+      return [...byId.values()].filter(item => {
+        const deletedAt = deletedItems[item.id];
+        return !deletedAt || parseTime(item.updatedAt) > parseTime(deletedAt);
+      });
+    }
+
+    function mergeCategoryMeta(localMeta = {}, remoteMeta = {}) {
+      const merged = {};
+      BASE_DATA.forEach(topic => {
+        const fallback = getCategoryMeta(topic.title);
+        const local = localMeta[topic.title] || fallback;
+        const remote = remoteMeta[topic.title] || null;
+        const winner = remote && parseTime(remote.updatedAt || EPOCH) >= parseTime(local.updatedAt || EPOCH)
+          ? remote
+          : local;
+        merged[topic.title] = {
+          name: typeof winner.name === "string" && winner.name.trim() ? winner.name.trim() : topic.title,
+          color: isKnownCategoryColor(winner.color) ? winner.color : fallback.color,
+          updatedAt: typeof winner.updatedAt === "string" ? winner.updatedAt : EPOCH
+        };
+      });
+      return merged;
+    }
+
+    function mergeHiddenKinds(localKinds = {}, remoteKinds = {}) {
+      const merged = {};
+      [localKinds, remoteKinds].forEach(source => {
+        if (!source || typeof source !== "object") return;
+        for (const [topicTitle, kinds] of Object.entries(source)) {
+          if (!Array.isArray(kinds)) continue;
+          const existing = merged[topicTitle] || [];
+          merged[topicTitle] = [...new Set([...existing, ...kinds.map(normalizeKindKey).filter(Boolean)])];
+        }
+      });
+      return merged;
+    }
+
+    function mergeSyncPayloads(localPayload, remotePayload) {
+      const deletedCustomItems = mergeDeletedCustomItems(localPayload.deletedCustomItems, remotePayload.deletedCustomItems);
+      return {
+        version: 4,
+        app: "share-n-save",
+        clientId: state.syncClientId,
+        lastModified: new Date().toISOString(),
+        customItems: mergeCustomItems(localPayload.customItems, remotePayload.customItems, deletedCustomItems),
+        deletedCustomItems,
+        hiddenItems: [...new Set([...(localPayload.hiddenItems || []), ...(remotePayload.hiddenItems || [])])],
+        hiddenTopics: [...new Set([...(localPayload.hiddenTopics || []), ...(remotePayload.hiddenTopics || [])])],
+        hiddenKinds: mergeHiddenKinds(localPayload.hiddenKinds, remotePayload.hiddenKinds),
+        categoryMeta: mergeCategoryMeta(localPayload.categoryMeta, remotePayload.categoryMeta)
+      };
+    }
+
+    function applySyncPayload(payload) {
+      if (!payload || typeof payload !== "object") return;
+      const validTopicTitles = new Set(BASE_DATA.map(topic => topic.title));
+      state.deletedCustomItems = mergeDeletedCustomItems(payload.deletedCustomItems || {});
+      state.customItems = Array.isArray(payload.customItems)
+        ? payload.customItems
+          .filter(item => item && item.title && validTopicTitles.has(item.topicTitle))
+          .map(normalizeCustomItem)
+          .filter(item => {
+            const deletedAt = state.deletedCustomItems[item.id];
+            return !deletedAt || parseTime(item.updatedAt) > parseTime(deletedAt);
+          })
+        : [];
+      state.hiddenItems = new Set(Array.isArray(payload.hiddenItems) ? payload.hiddenItems : []);
+      state.hiddenTopics = new Set(Array.isArray(payload.hiddenTopics) ? payload.hiddenTopics : []);
+      state.hiddenKinds = loadHiddenKindsFromPayload(payload.hiddenKinds);
+      state.categoryMeta = mergeCategoryMeta({}, payload.categoryMeta || {});
+      state.localChangedAt = payload.lastModified || new Date().toISOString();
+
+      saveCustomItems();
+      saveDeletedCustomItems();
+      saveHiddenItems();
+      saveHiddenTopics();
+      saveHiddenKinds();
+      saveCategoryMeta();
+      saveLocalChangedAt();
+      populateTopicSelect();
+      render();
+    }
+
+    function loadHiddenKindsFromPayload(raw) {
+      if (!raw || typeof raw !== "object") return {};
+      const normalized = {};
+      for (const [topicTitle, kinds] of Object.entries(raw)) {
+        if (!Array.isArray(kinds)) continue;
+        const cleanKinds = [...new Set(kinds.map(normalizeKindKey).filter(Boolean))];
+        if (cleanKinds.length) normalized[topicTitle] = cleanKinds;
+      }
+      return normalized;
+    }
+
+    function cleanSupabaseUrl(url) {
+      return String(url || "").trim().replace(/\/+$/, "");
+    }
+
+    function isSyncConfigured() {
+      const settings = state.syncSettings;
+      return !!(settings.enabled && cleanSupabaseUrl(settings.url) && settings.anonKey && settings.syncId && settings.accessKey);
+    }
+
+    async function supabaseRpc(functionName, body) {
+      const settings = state.syncSettings;
+      const response = await fetch(`${cleanSupabaseUrl(settings.url)}/rest/v1/rpc/${functionName}`, {
+        method: "POST",
+        headers: {
+          "apikey": settings.anonKey,
+          "Authorization": `Bearer ${settings.anonKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || `Supabase ${functionName} failed`);
+      }
+      if (response.status === 204) return null;
+      return response.json();
+    }
+
+    async function pullRemotePayload() {
+      const settings = state.syncSettings;
+      const rows = await supabaseRpc("share_n_save_pull", {
+        p_sync_id: settings.syncId,
+        p_access_key: settings.accessKey
+      });
+      return Array.isArray(rows) ? rows[0] : rows;
+    }
+
+    async function pushRemotePayload(payload) {
+      const settings = state.syncSettings;
+      const rows = await supabaseRpc("share_n_save_push", {
+        p_sync_id: settings.syncId,
+        p_access_key: settings.accessKey,
+        p_payload: payload
+      });
+      return Array.isArray(rows) ? rows[0] : rows;
+    }
+
+    function setSyncStatus(syncState, label, detail) {
+      els.syncBtn.dataset.syncState = syncState;
+      els.syncLabel.textContent = label;
+      els.syncStatusText.textContent = detail || label;
+    }
+
+    function refreshSyncStatus() {
+      if (!state.syncSettings.enabled) {
+        setSyncStatus("off", "Sync off", "Sync is off.");
+      } else if (!isSyncConfigured()) {
+        setSyncStatus("error", "Setup", "Sync needs Supabase settings.");
+      } else {
+        setSyncStatus("synced", "Sync on", state.syncSettings.lastSyncAt ? `Last sync: ${new Date(state.syncSettings.lastSyncAt).toLocaleString()}` : "Sync is on.");
+      }
+    }
+
+    async function syncNow(options = {}) {
+      if (!isSyncConfigured()) {
+        refreshSyncStatus();
+        if (!options.silent) showToast("Add sync settings first.");
+        return;
+      }
+      if (state.syncInFlight) return;
+      if (navigator.onLine === false) {
+        setSyncStatus("pending", "Offline", "Waiting for a connection.");
+        return;
+      }
+
+      state.syncInFlight = true;
+      setSyncStatus("syncing", "Syncing", "Syncing...");
+      try {
+        const remoteRow = await pullRemotePayload();
+        let localPayload = buildSyncPayload();
+
+        if (!remoteRow || !remoteRow.payload) {
+          const pushed = await pushRemotePayload(localPayload);
+          state.syncSettings.lastRemoteUpdatedAt = pushed && pushed.updated_at ? pushed.updated_at : new Date().toISOString();
+          state.syncSettings.lastSyncAt = new Date().toISOString();
+          saveSyncSettings();
+          setSyncStatus("synced", "Synced", "Saved to sync cloud.");
+          if (!options.silent) showToast("Sync created.");
+          return;
+        }
+
+        const remotePayload = remoteRow.payload;
+        const remoteServerUpdatedAt = remoteRow.updated_at || remotePayload.lastModified || "";
+        const remoteTime = parseTime(remotePayload.lastModified || remoteServerUpdatedAt);
+        const localTime = parseTime(state.localChangedAt);
+        const hasSyncedBefore = !!state.syncSettings.lastSyncAt;
+        const localChangedSinceSync = hasSyncedBefore && localTime > parseTime(state.syncSettings.lastSyncAt);
+        const remoteChangedSinceSync = hasSyncedBefore && remoteServerUpdatedAt !== state.syncSettings.lastRemoteUpdatedAt;
+
+        if (!hasSyncedBefore || (localChangedSinceSync && remoteChangedSinceSync)) {
+          const merged = mergeSyncPayloads(localPayload, remotePayload);
+          applySyncPayload(merged);
+          localPayload = buildSyncPayload();
+          const pushed = await pushRemotePayload(localPayload);
+          state.syncSettings.lastRemoteUpdatedAt = pushed && pushed.updated_at ? pushed.updated_at : new Date().toISOString();
+          state.syncSettings.lastSyncAt = new Date().toISOString();
+          saveSyncSettings();
+          setSyncStatus("synced", "Synced", "Merged and synced.");
+          if (!options.silent) showToast("Merged and synced.");
+        } else if (remoteTime > localTime) {
+          applySyncPayload(remotePayload);
+          state.syncSettings.lastRemoteUpdatedAt = remoteServerUpdatedAt;
+          state.syncSettings.lastSyncAt = new Date().toISOString();
+          saveSyncSettings();
+          setSyncStatus("synced", "Synced", "Updated from sync cloud.");
+          if (!options.silent) showToast("Updated from sync cloud.");
+        } else if (localTime > remoteTime) {
+          const pushed = await pushRemotePayload(localPayload);
+          state.syncSettings.lastRemoteUpdatedAt = pushed && pushed.updated_at ? pushed.updated_at : new Date().toISOString();
+          state.syncSettings.lastSyncAt = new Date().toISOString();
+          saveSyncSettings();
+          setSyncStatus("synced", "Synced", "Saved to sync cloud.");
+          if (!options.silent) showToast("Saved to sync cloud.");
+        } else {
+          state.syncSettings.lastRemoteUpdatedAt = remoteServerUpdatedAt;
+          state.syncSettings.lastSyncAt = new Date().toISOString();
+          saveSyncSettings();
+          setSyncStatus("synced", "Synced", "Everything is synced.");
+          if (!options.silent) showToast("Already synced.");
+        }
+      } catch (err) {
+        console.error(err);
+        setSyncStatus("error", "Sync error", "Sync failed. Check settings and Supabase setup.");
+        if (!options.silent) showToast("Sync failed. Check settings.");
+      } finally {
+        state.syncInFlight = false;
+      }
+    }
+
+    function scheduleSync(delay = 1200) {
+      if (!isSyncConfigured()) return;
+      setSyncStatus("pending", "Pending", "Local changes are waiting to sync.");
+      clearTimeout(scheduleSync.timer);
+      scheduleSync.timer = setTimeout(() => syncNow({ silent: true }), delay);
+    }
+
+    function startAutoSync() {
+      clearInterval(state.syncTimer);
+      refreshSyncStatus();
+      if (!isSyncConfigured()) return;
+      state.syncTimer = setInterval(() => syncNow({ silent: true }), SYNC_INTERVAL_MS);
+      setTimeout(() => syncNow({ silent: true }), 700);
+    }
+
+    function populateSyncForm() {
+      els.syncUrlInput.value = state.syncSettings.url || "";
+      els.syncAnonKeyInput.value = state.syncSettings.anonKey || "";
+      els.syncIdInput.value = state.syncSettings.syncId || "";
+      els.syncSecretInput.value = state.syncSettings.accessKey || "";
+      refreshSyncStatus();
+    }
+
+    function openSyncDialog() {
+      populateSyncForm();
+      els.syncDialog.showModal();
+    }
+
+    function generateToken(prefix) {
+      const bytes = new Uint8Array(16);
+      if (crypto && crypto.getRandomValues) {
+        crypto.getRandomValues(bytes);
+      } else {
+        bytes.forEach((_, idx) => { bytes[idx] = Math.floor(Math.random() * 256); });
+      }
+      const token = [...bytes].map(byte => byte.toString(16).padStart(2, "0")).join("");
+      return `${prefix}-${token}`;
+    }
+
+    function saveSyncForm(event) {
+      event.preventDefault();
+      const previous = `${state.syncSettings.url}|${state.syncSettings.syncId}`;
+      const nextUrl = cleanSupabaseUrl(els.syncUrlInput.value);
+      const nextSettings = {
+        ...state.syncSettings,
+        enabled: true,
+        provider: "supabase",
+        url: nextUrl,
+        anonKey: els.syncAnonKeyInput.value.trim(),
+        syncId: els.syncIdInput.value.trim(),
+        accessKey: els.syncSecretInput.value.trim()
+      };
+
+      if (!nextSettings.url || !nextSettings.anonKey || !nextSettings.syncId || !nextSettings.accessKey) {
+        showToast("Fill in all sync fields.");
+        return;
+      }
+
+      const next = `${nextSettings.url}|${nextSettings.syncId}`;
+      if (next !== previous) {
+        nextSettings.lastRemoteUpdatedAt = "";
+        nextSettings.lastSyncAt = "";
+      }
+      state.syncSettings = nextSettings;
+      saveSyncSettings();
+      els.syncDialog.close();
+      startAutoSync();
+      syncNow({ silent: false });
+    }
+
+    function disconnectSync() {
+      state.syncSettings = {
+        enabled: false,
+        provider: "supabase",
+        url: "",
+        anonKey: "",
+        syncId: "",
+        accessKey: "",
+        lastRemoteUpdatedAt: "",
+        lastSyncAt: ""
+      };
+      saveSyncSettings();
+      clearInterval(state.syncTimer);
+      populateSyncForm();
+      refreshSyncStatus();
+      showToast("Sync disconnected.");
+    }
+
+    function initSync() {
+      refreshSyncStatus();
+      startAutoSync();
+      window.addEventListener("online", () => syncNow({ silent: true }));
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) syncNow({ silent: true });
+      });
     }
 
     function showToast(message) {
@@ -1852,17 +3185,35 @@
       state.query = els.search.value;
       render();
     });
+    els.toggleCategoriesBtn.addEventListener("click", () => {
+      state.categoriesExpanded = !state.categoriesExpanded;
+      if (!state.categoriesExpanded) {
+        state.openTopics = new Set();
+      }
+      render();
+    });
     els.addItemBtn.addEventListener("click", () => openAddModal());
+    els.syncBtn.addEventListener("click", openSyncDialog);
     els.exportBtn.addEventListener("click", exportCustomItems);
     els.importFile.addEventListener("change", event => importCustomItems(event.target.files[0]));
+    els.restoreBtn.addEventListener("click", restoreDeleted);
     els.closeDialogBtn.addEventListener("click", () => els.dialog.close());
     els.form.addEventListener("submit", addCustomItem);
     els.clearFormBtn.addEventListener("click", clearForm);
     els.useSharedTextBtn.addEventListener("click", useSharedText);
     els.pasteClipboardBtn.addEventListener("click", pasteClipboard);
+    els.closeSyncDialogBtn.addEventListener("click", () => els.syncDialog.close());
+    els.syncForm.addEventListener("submit", saveSyncForm);
+    els.disconnectSyncBtn.addEventListener("click", disconnectSync);
+    els.generateSyncCodeBtn.addEventListener("click", () => {
+      if (!els.syncIdInput.value) els.syncIdInput.value = generateToken("list");
+      if (!els.syncSecretInput.value) els.syncSecretInput.value = generateToken("key");
+    });
+    els.syncNowBtn.addEventListener("click", () => syncNow({ silent: false }));
 
     populateTopicSelect();
     render();
+    initSync();
     initServiceWorker();
     initShareTargetPrefill();
   </script>
