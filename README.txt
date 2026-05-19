@@ -5,7 +5,7 @@ Files:
 - manifest.webmanifest: PWA metadata and Web Share Target configuration.
 - sw.js: service worker needed for install/offline behavior.
 - icon.svg: app icon.
-- SYNC_PLAN.md: Supabase setup for free automatic sync across devices.
+- guide_for_sync_setup.md: Supabase setup for free automatic sync across devices.
 
 How to use locally:
 1. Open index.html in a browser.
@@ -20,7 +20,3 @@ How to make Android Share from X/LinkedIn work:
 3. Use Chrome menu -> Add to Home screen / Install app.
 4. Open X or LinkedIn, tap Share on a post, and choose "Share n' Save".
 5. The add-item window opens with the shared link/text prefilled. Choose category/subcategory and save.
-
-Important:
-- Android share-target cannot work from a plain downloaded file:// HTML page.
-- Custom additions are saved in that browser/device's localStorage until Sync is configured. Follow SYNC_PLAN.md for the free Supabase setup.
