@@ -21,7 +21,9 @@ The app now supports:
 3. Run this SQL:
 
 ```sql
-create extension if not exists pgcrypto;
+create schema if not exists extensions;
+create extension if not exists pgcrypto with schema extensions;
+alter extension pgcrypto set schema extensions;
 
 create table if not exists public.share_n_save_sync (
   sync_id text primary key,
@@ -43,7 +45,7 @@ security definer
 set search_path = public
 as $$
 declare
-  key_hash text := encode(digest(p_access_key, 'sha256'), 'hex');
+  key_hash text := encode(extensions.digest(convert_to(p_access_key, 'UTF8'), 'sha256'), 'hex');
 begin
   if exists (
     select 1 from public.share_n_save_sync
@@ -70,7 +72,7 @@ security definer
 set search_path = public
 as $$
 declare
-  key_hash text := encode(digest(p_access_key, 'sha256'), 'hex');
+  key_hash text := encode(extensions.digest(convert_to(p_access_key, 'UTF8'), 'sha256'), 'hex');
 begin
   if exists (
     select 1 from public.share_n_save_sync
